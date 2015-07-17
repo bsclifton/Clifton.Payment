@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Clifton.Payment;
+using System.Text;
 
 namespace Clifton.Payment.Tests {
     [TestClass]
@@ -26,6 +27,25 @@ namespace Clifton.Payment.Tests {
                 bool result = Check.IsValidRoutingNumber(routingNumber);
                 Assert.IsTrue(result);
             }
+        }
+    }
+
+    [TestClass]
+    public class ParseFromMicrTests {
+        [TestMethod]
+        public void parseMicr() {
+            string exampleRouting = "011110756",
+                   exampleAccountNumber = "123456789",
+                   exampleCheckNumber = "1234",
+                   exampleMicr = string.Format("t{0}t{1}o{2}", exampleRouting, exampleAccountNumber, exampleCheckNumber);
+
+            Check check = null;
+
+            int newOffset = Check.ParseFromMicr(ASCIIEncoding.ASCII.GetBytes(exampleMicr), 0, out check);
+
+            Assert.AreEqual(exampleRouting, check.RoutingNumber);
+            Assert.AreEqual(exampleAccountNumber, check.AccountNumber);
+            Assert.AreEqual(exampleCheckNumber, check.CheckNumber);
         }
     }
 }

@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:s0="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/encodedTypes" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" targetNamespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema xmlns="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/encodedTypes" targetNamespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/encodedTypes">
+      <s:complexType name="SoftDescriptor_Type">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DBAName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Street" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="City" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Region" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PostalCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CountryCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MCC" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MerchantContactInfo" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Level3_ShipToAddress_Type">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Address1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="City" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="State" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Country" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CustomerNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Email" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Phone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Zip" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Level3_LineItem_Type">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="CommodityCode" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DiscountAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DiscountIndicator" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="GrossNetIndicator" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="LineItemTotal" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ProductCode" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Quantity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="TaxAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="TaxRate" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="TaxType" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="UnitCost" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UnitOfMeasure" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Level3_Type">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="TaxAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="TaxRate" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AltTaxAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AltTaxId" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DutyAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="FreightAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DiscountAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ShipFromZip" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ShipToAddress" type="s0:Level3_ShipToAddress_Type" />
+          <s:element minOccurs="1" maxOccurs="98" name="LineItem" type="s0:Level3_LineItem_Type" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PaypalTransactionDetails">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PayerID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="GrossAmountCurrencyID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Success" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="Authorization" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CorrelationID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Timestamp" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Address_Type">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Address1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Address2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="City" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="State" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Zip" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CountryCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PhoneNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PhoneType" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DynamicCurrency">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="OptedIn" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="RateResponseSignature" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DynamicPricing">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="OptedIn" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="RateResponseSignature" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ForeignCurrencyDetails">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="DCCIndicator" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ForeignAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ForeignCurrencyCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExchangeRate" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MarginRate" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="RateSource" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VisaCheckout">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="CallID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PromoCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Transaction">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ExactID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Transaction_Type" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DollarAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SurchargeAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Card_Number" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Transaction_Tag" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SplitTenderID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Track1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Track2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PAN" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Authorization_Num" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Expiry_Date" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CardHoldersName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CVDCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CVD_Presence_Ind" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ZipCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Tax1Amount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Tax1Number" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Tax2Amount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Tax2Number" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Secure_AuthRequired" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Secure_AuthResult" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ecommerce_Flag" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="XID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CAVV" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CAVV_Algorithm" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Reference_No" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Customer_Ref" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Reference_3" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Language" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Client_IP" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Client_Email" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="User_Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Currency" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PartialRedemption" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="Level3" type="s0:Level3_Type" />
+          <s:element minOccurs="0" maxOccurs="1" name="TransarmorToken" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CardType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EAN" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="VirtualCard" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="CardCost" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="FraudSuspected" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaypalResponse" type="s0:PaypalTransactionDetails" />
+          <s:element minOccurs="0" maxOccurs="1" name="SoftDescriptor" type="s0:SoftDescriptor_Type" />
+          <s:element minOccurs="0" maxOccurs="1" name="Address" type="s0:Address_Type" />
+          <s:element minOccurs="0" maxOccurs="1" name="TPPID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SplitShipmentNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AmexFraud" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DynamicCurrency" type="s0:DynamicCurrency" />
+          <s:element minOccurs="0" maxOccurs="1" name="DynamicPricing" type="s0:DynamicPricing" />
+          <s:element minOccurs="0" maxOccurs="1" name="FeeAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="VisaCheckout" type="s0:VisaCheckout" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TransactionResult">
+        <s:complexContent mixed="false">
+          <s:extension base="s0:Transaction">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="Transaction_Error" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="Transaction_Approved" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="EXact_Resp_Code" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="EXact_Message" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Bank_Resp_Code" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Bank_Message" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Bank_Resp_Code_2" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="SequenceNo" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="AVS" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="CVV2" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Retrieval_Ref_No" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="CAVV_Response" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="AmountRequested" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantAddress" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantCity" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantProvince" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantCountry" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantPostal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantURL" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="CurrentBalance" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="PreviousBalance" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ForeignCurrencyDetails" type="s0:ForeignCurrencyDetails" />
+              <s:element minOccurs="0" maxOccurs="1" name="CTR" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CheckTransaction">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ExactID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Password" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Transaction_Type" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="DollarAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CheckType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="MICR" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CheckNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="BankAccountNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="BankRoutingNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Transaction_Tag" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SplitTenderID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Authorization_Num" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CustomerName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ecommerce_Flag" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Reference_No" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Customer_Ref" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Language" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Client_IP" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Client_Email" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="User_Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CustomerIDType" type="s:integer" />
+          <s:element minOccurs="0" maxOccurs="1" name="CustomerID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ReleaseType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="GiftCardAmount" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DateOfBirth" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="VIP" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="RegistrationNo" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="RegistrationDate" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ClerkID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Address" type="s0:Address_Type" />
+          <s:element minOccurs="0" maxOccurs="1" name="TPPID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SplitShipmentNumber" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CheckTransactionResult">
+        <s:complexContent mixed="false">
+          <s:extension base="s0:CheckTransaction">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="Transaction_Error" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="Transaction_Approved" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="EXact_Resp_Code" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="EXact_Message" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Bank_Resp_Code" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Bank_Message" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Bank_Resp_Code_2" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="SequenceNo" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantAddress" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantCity" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantProvince" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantCountry" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantPostal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="MerchantURL" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="CTR" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="SendAndCommitSoapIn">
+    <wsdl:part name="SendAndCommitSource" type="s0:Transaction" />
+  </wsdl:message>
+  <wsdl:message name="SendAndCommitSoapOut">
+    <wsdl:part name="SendAndCommitResult" type="s0:TransactionResult" />
+  </wsdl:message>
+  <wsdl:message name="SendAndCommitCheckSoapIn">
+    <wsdl:part name="SendAndCommitCheckSource" type="s0:CheckTransaction" />
+  </wsdl:message>
+  <wsdl:message name="SendAndCommitCheckSoapOut">
+    <wsdl:part name="SendAndCommitCheckResult" type="s0:CheckTransactionResult" />
+  </wsdl:message>
+  <wsdl:message name="TransactionInfoSoapIn">
+    <wsdl:part name="TransactionInfoSource" type="s0:Transaction" />
+  </wsdl:message>
+  <wsdl:message name="TransactionInfoSoapOut">
+    <wsdl:part name="TransactionInfoResult" type="s0:TransactionResult" />
+  </wsdl:message>
+  <wsdl:message name="CheckTransactionInfoSoapIn">
+    <wsdl:part name="CheckTransactionInfoSource" type="s0:CheckTransaction" />
+  </wsdl:message>
+  <wsdl:message name="CheckTransactionInfoSoapOut">
+    <wsdl:part name="CheckTransactionInfoResult" type="s0:CheckTransactionResult" />
+  </wsdl:message>
+  <wsdl:portType name="ServiceSoap">
+    <wsdl:operation name="SendAndCommit">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">E-xact Transactions Ltd. RPC/Encoded Transaction VPlug-in for One-stage Processing Credit Transactions</documentation>
+      <wsdl:input message="tns:SendAndCommitSoapIn" />
+      <wsdl:output message="tns:SendAndCommitSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendAndCommitCheck">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">E-xact Transactions Ltd. RPC/Encoded Transaction VPlug-in for One-stage Processing Telecheck Transactions</documentation>
+      <wsdl:input message="tns:SendAndCommitCheckSoapIn" />
+      <wsdl:output message="tns:SendAndCommitCheckSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="TransactionInfo">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">E-xact Transactions Ltd. RPC/Encoded Transaction VPlug-in for Retrieving Securely Stored Credit Transaction Information</documentation>
+      <wsdl:input message="tns:TransactionInfoSoapIn" />
+      <wsdl:output message="tns:TransactionInfoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckTransactionInfo">
+      <documentation xmlns="http://schemas.xmlsoap.org/wsdl/">E-xact Transactions Ltd. RPC/Encoded Transaction VPlug-in for Retrieving Securely Stored Telecheck Transaction Information</documentation>
+      <wsdl:input message="tns:CheckTransactionInfoSoapIn" />
+      <wsdl:output message="tns:CheckTransactionInfoSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServiceSoap" type="tns:ServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="SendAndCommit">
+      <soap:operation soapAction="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/SendAndCommit" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Request" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Response" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendAndCommitCheck">
+      <soap:operation soapAction="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/SendAndCommitCheck" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Request" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Response" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TransactionInfo">
+      <soap:operation soapAction="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/TransactionInfo" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Request" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Response" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckTransactionInfo">
+      <soap:operation soapAction="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/CheckTransactionInfo" style="rpc" />
+      <wsdl:input>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Request" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="encoded" namespace="http://secure2.e-xact.com/vplug-in/transaction/rpc-enc/Response" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service">
+    <wsdl:port name="ServiceSoap" binding="tns:ServiceSoap">
+      <soap:address location="https://api.globalgatewaye4.firstdata.com/transaction/v19" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
