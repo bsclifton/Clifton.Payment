@@ -15,49 +15,49 @@ namespace Clifton.Payment.Tests {
     [TestClass]
     public class GetCardTypeTests {
         [TestMethod]
-        public void getTypeValidDiners() {
+        public void GetCardType_ValidDiners() {
             CreditCardType type = CreditCard.GetCardType(ExampleCard.validDiners);
             Assert.AreEqual(CreditCardType.Diners, type);
         }
 
         [TestMethod]
-        public void getTypeValidAmericanExpress() {
+        public void GetCardType_ValidAmericanExpress() {
             CreditCardType type = CreditCard.GetCardType(ExampleCard.validAmericanExpress);
             Assert.AreEqual(CreditCardType.AmericanExpress, type);
         }
 
         [TestMethod]
-        public void getTypeValidVisa() {
+        public void GetCardType_ValidVisa() {
             CreditCardType type = CreditCard.GetCardType(ExampleCard.validVisa);
             Assert.AreEqual(CreditCardType.Visa, type);
         }
 
         [TestMethod]
-        public void getTypeValidMasterCard() {
+        public void GetCardType_ValidMasterCard() {
             CreditCardType type = CreditCard.GetCardType(ExampleCard.validMasterCard);
             Assert.AreEqual(CreditCardType.MasterCard, type);
         }
 
         [TestMethod]
-        public void getTypeValidDiscover() {
+        public void GetCardType_ValidDiscover() {
             CreditCardType type = CreditCard.GetCardType(ExampleCard.validDiscover);
             Assert.AreEqual(CreditCardType.Discover, type);
         }
 
         [TestMethod]
-        public void getTypeTrimsWhitespaceBeforeProcessing() {
+        public void GetCardType_TrimsWhitespaceBeforeProcessing() {
             CreditCardType type = CreditCard.GetCardType(string.Format("\r\n\r\n\t {0}\t\t\t\n", ExampleCard.validAmericanExpress));
             Assert.AreEqual(CreditCardType.AmericanExpress, type);
         }
 
         [TestMethod]
-        public void getTypeInvalidNull() {
+        public void GetCardType_InvalidNull() {
             CreditCardType type = CreditCard.GetCardType(null);
             Assert.AreEqual(CreditCardType.Invalid, type);
         }
 
         [TestMethod]
-        public void getTypeInvalidWhitespace() {
+        public void GetCardType_InvalidWhitespace() {
             CreditCardType type = CreditCard.GetCardType("\t\n             ");
             Assert.AreEqual(CreditCardType.Invalid, type);
         }
@@ -66,13 +66,13 @@ namespace Clifton.Payment.Tests {
     [TestClass]
     public class HasValidLuhnChecksumTests {
         [TestMethod]
-        public void luhnValidAmericanExpress() {
+        public void HasValidLuhnChecksum_ValidAmericanExpress() {
             bool result = CreditCard.HasValidLuhnChecksum(ExampleCard.validAmericanExpress);
             Assert.IsTrue(result);
         }
 
         [TestMethod]
-        public void luhnInvalidAmericanExpress() {
+        public void HasValidLuhnChecksum_InvalidAmericanExpress() {
             bool result = CreditCard.HasValidLuhnChecksum(ExampleCard.invalidAmericanExpress);
             Assert.IsFalse(result);
         }

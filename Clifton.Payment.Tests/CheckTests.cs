@@ -7,15 +7,18 @@ using System.Text;
 namespace Clifton.Payment.Tests {
     [TestClass]
     public class HasValidRoutingNumberTests {
-        //Test using all fedwire participants. Downloaded from:
-        //https://www.frbservices.org/EPaymentsDirectory/download.html
-
-        //Download link:
-        //https://www.frbservices.org/EPaymentsDirectory/fpddir.txt
-
-        //Description of format: https://www.frbservices.org/EPaymentsDirectory/fedwireFormat.html
+        /// <summary>
+        /// Test using all fedwire participants. Downloaded from:
+        /// https://www.frbservices.org/EPaymentsDirectory/download.html
+        ///
+        /// Download link:
+        /// https://www.frbservices.org/EPaymentsDirectory/fpddir.txt
+        ///
+        /// Description of format: https://www.frbservices.org/EPaymentsDirectory/fedwireFormat.html
+        /// </summary>
         [TestMethod]
-        public void hasValidRoutingTestAllFedwire() {
+        public void IsValidRoutingNumber_TestAllFedwire() {
+            //NOTE: This file may be out of date (was downloaded July 17, 2015).
             FileStream fs = File.OpenRead("fpddir.txt");
             StreamReader sr = new StreamReader(fs);
             string fileContents = sr.ReadToEnd();
@@ -33,7 +36,7 @@ namespace Clifton.Payment.Tests {
     [TestClass]
     public class ParseFromMicrTests {
         [TestMethod]
-        public void parseMicr() {
+        public void ParseFromMicr_HappyPath() {
             string exampleRouting = "011110756",
                    exampleAccountNumber = "123456789",
                    exampleCheckNumber = "1234",

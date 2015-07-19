@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Clifton.Payment.Gateway {
     public abstract class BaseGateway {
-        public abstract void ProcessCreditCard(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName);
+        public abstract void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName);
+
+        //TODO: include a way to load the user/pass, in case the web.config is not acceptable.
 
         protected void ValidateCreditCard(string cardNumber, string expirationMonth, string expirationYear, out int parsedExpirationMonth, out int parsedExpirationYear) {
             if (string.IsNullOrWhiteSpace(cardNumber)) {
