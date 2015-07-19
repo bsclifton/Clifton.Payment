@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -41,11 +42,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
     <Compile Include="CreditCard.cs" />
     <Compile Include="CreditCardType.cs" />
     <Compile Include="Check.cs" />
+    <Compile Include="Gateway\BaseGateway.cs" />
+    <Compile Include="Gateway\FirstData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service References\FirstData\Reference.cs">
+    <Compile Include="Service References\Payeezy\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -56,37 +60,37 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Service References\FirstData\Clifton.Payment.FirstData.CheckTransactionInfoResponse.datasource">
+    <None Include="Service References\Payeezy\Clifton.Payment.Payeezy.CheckTransactionInfoResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\FirstData\Clifton.Payment.FirstData.CheckTransactionResult.datasource">
+    <None Include="Service References\Payeezy\Clifton.Payment.Payeezy.CheckTransactionResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\FirstData\Clifton.Payment.FirstData.SendAndCommitCheckResponse.datasource">
+    <None Include="Service References\Payeezy\Clifton.Payment.Payeezy.SendAndCommitCheckResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\FirstData\Clifton.Payment.FirstData.SendAndCommitResponse.datasource">
+    <None Include="Service References\Payeezy\Clifton.Payment.Payeezy.SendAndCommitResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\FirstData\Clifton.Payment.FirstData.TransactionInfoResponse.datasource">
+    <None Include="Service References\Payeezy\Clifton.Payment.Payeezy.TransactionInfoResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\FirstData\Clifton.Payment.FirstData.TransactionResult.datasource">
+    <None Include="Service References\Payeezy\Clifton.Payment.Payeezy.TransactionResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\FirstData\wsdl.wsdl" />
+    <None Include="Service References\Payeezy\wsdl.wsdl" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\FirstData\" />
+    <WCFMetadataStorage Include="Service References\Payeezy\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\FirstData\configuration91.svcinfo" />
+    <None Include="Service References\Payeezy\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\FirstData\configuration.svcinfo" />
+    <None Include="Service References\Payeezy\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\FirstData\Reference.svcmap">
+    <None Include="Service References\Payeezy\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
