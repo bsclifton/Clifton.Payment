@@ -52,7 +52,8 @@
   <ItemGroup>
     <Compile Include="CheckTests.cs" />
     <Compile Include="CreditCardTests.cs" />
-    <Compile Include="Gateway\FirstDataTests.cs" />
+    <Compile Include="Gateway\PayeezyGatewayTests.cs" />
+    <Compile Include="Gateway\PayeezyRestTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

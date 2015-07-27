@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -48,8 +51,10 @@
     <Compile Include="CreditCard.cs" />
     <Compile Include="CreditCardType.cs" />
     <Compile Include="Check.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="Gateway\BaseGateway.cs" />
-    <Compile Include="Gateway\FirstData.cs" />
+    <Compile Include="Gateway\PayeezyGateway.cs" />
+    <Compile Include="Gateway\PayeezyRest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -59,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

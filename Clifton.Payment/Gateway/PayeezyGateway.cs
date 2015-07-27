@@ -8,10 +8,10 @@ using System.Xml;
 
 namespace Clifton.Payment.Gateway {
     /// <summary>
-    /// 
+    /// Wraps the older Web Service API for First Data.
     /// </summary>
     /// <see cref="https://support.payeezy.com/hc/en-us/articles/204029989-First-Data-Payeezy-Gateway-Web-Service-API-Reference-Guide-"/>
-    public class FirstData : BaseGateway {
+    public class PayeezyGateway : BaseGateway {
         #region Members
 
         protected enum TransactionType {
@@ -56,7 +56,7 @@ namespace Clifton.Payment.Gateway {
 
         #region Properties
 
-        private string ContentType {
+        protected override string ContentType {
             get { return "application/xml"; }
         }
 
@@ -74,20 +74,23 @@ namespace Clifton.Payment.Gateway {
             return hash.ToLower();
         }
 
-        private HttpWebRequest CreateRequest(string keyId, string key, string baseUrl, string xmlString, string hashedContent) {
-            string method = "POST\n";
-            string time = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string hashData = method + ContentType + "\n" + hashedContent + "\n" + time + "\n" + Uri;
+        private string GenerateHmac(string key, string payloadHash, string time) {
+            string hashData = "POST\n" + ContentType + "\n" + payloadHash + "\n" + time + "\n" + Uri;
             HMAC hmacSha1 = new HMACSHA1(Encoding.UTF8.GetBytes(key));
             byte[] hmacData = hmacSha1.ComputeHash(Encoding.UTF8.GetBytes(hashData));
-            string base64Hash = Convert.ToBase64String(hmacData);
+            return Convert.ToBase64String(hmacData);
+        }
+
+        private HttpWebRequest CreateRequest(string keyId, string key, string baseUrl, string xmlString, string payloadHash) {
+            string time = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            string base64Hash = GenerateHmac(key, payloadHash, time);
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(baseUrl + Uri);
             webRequest.Method = "POST";
             webRequest.ContentType = ContentType;
             webRequest.Accept = "*/*";
             webRequest.Headers.Add("x-gge4-date", time);
-            webRequest.Headers.Add("x-gge4-content-sha1", hashedContent);
+            webRequest.Headers.Add("x-gge4-content-sha1", payloadHash);
             webRequest.Headers.Add("Authorization", "GGE4_API " + keyId + ":" + base64Hash);
             webRequest.ContentLength = xmlString.Length;
 
@@ -99,7 +102,7 @@ namespace Clifton.Payment.Gateway {
             return webRequest;
         }
 
-        public override void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName) {
+        public override void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string referenceNumber) {
             int parsedExpirationMonth, parsedExpirationYear;
 
             base.ValidateCreditCard(cardNumber, expirationMonth, expirationYear, out parsedExpirationMonth, out parsedExpirationYear);
@@ -118,12 +121,13 @@ namespace Clifton.Payment.Gateway {
                     xmlWriter.WriteElementString("Expiry_Date", string.Format("{0:00}{1:00}", parsedExpirationMonth, parsedExpirationYear));
                     xmlWriter.WriteElementString("CardHoldersName", cardHoldersName);
                     xmlWriter.WriteElementString("Card_Number", cardNumber);
+                    xmlWriter.WriteElementString("Reference_No", referenceNumber);
                     xmlWriter.WriteEndElement();
                 }
             }
             string xmlString = stringBuilder.ToString();
-            string hashedContent = GetPayloadHash(xmlString);
-            HttpWebRequest webRequest = CreateRequest(config.KeyId, config.HmacKey, config.Url, xmlString, hashedContent);
+            string payloadHash = GetPayloadHash(xmlString);
+            HttpWebRequest webRequest = CreateRequest(config.KeyId, config.HmacKey, config.Url, xmlString, payloadHash);
 
             string responseString;
             try {
