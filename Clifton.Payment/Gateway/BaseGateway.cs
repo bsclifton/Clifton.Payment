@@ -10,29 +10,27 @@ namespace Clifton.Payment.Gateway {
 
         protected abstract string ContentType { get; }
 
-        //TODO: include a way to load the user/pass, in case the web.config is not acceptable.
-
         protected CreditCardType ValidateCreditCard(string cardNumber, string expirationMonth, string expirationYear, out int parsedExpirationMonth, out int parsedExpirationYear) {
             if (string.IsNullOrWhiteSpace(cardNumber)) {
                 throw new CardNumberNullException("Card number is null / empty");
             }
 
             if (string.IsNullOrWhiteSpace(expirationMonth)) {
-                throw new ExpirationNullException("Expiration month is null / empty"); 
+                throw new ExpirationNullException("Expiration month is null / empty");
             }
 
             if (string.IsNullOrWhiteSpace(expirationYear)) {
                 throw new ExpirationNullException("Expiration year is null / empty");
             }
-            
+
             CreditCardType cardType = CreditCard.GetCardType(cardNumber);
             if (cardType == CreditCardType.Invalid) {
                 throw new CardTypeNotSupportedException("Card type is unsupported or card number is invalid");
-	        }
+            }
 
-	        if(!CreditCard.HasValidLuhnChecksum(cardNumber)){
+            if (!CreditCard.HasValidLuhnChecksum(cardNumber)) {
                 throw new CardNumberInvalidException("Card number is invalid");
-	        }
+            }
 
             if (!int.TryParse(expirationMonth, out parsedExpirationMonth)) {
                 throw new ExpirationFormatException("Expiration month must be a number");

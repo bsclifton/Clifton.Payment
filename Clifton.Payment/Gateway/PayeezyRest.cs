@@ -112,15 +112,9 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            //TODO: put in config. These values are from the demo page.
-            string sandboxUrl = "https://api-cert.payeezy.com/v1/transactions";
-            string apiKey = "y6pWAJNyJyjGv66IsVuWnklkKUPFbb0a";
-            string apiSecret = "86fbae7030253af3cd15faef2a1f4b67353e41fb6799f576b5093ae52901e6f7";
-            string token = "fdoa-a480ce8951daa73262734cf102641994c1e55e7cdf4c02b6";
-            /////////////////////
-
+            var config = Clifton.Payment.Configuration.GetConfig().Gateways["FirstData"];
             string payloadString = JsonConvert.SerializeObject(payload);
-            HttpWebRequest webRequest = CreateRequest(apiKey, apiSecret, token, sandboxUrl, payloadString);
+            HttpWebRequest webRequest = CreateRequest(config.ApiKey, config.ApiSecret, config.Token, config.Url, payloadString);
 
             string responseString;
             try {

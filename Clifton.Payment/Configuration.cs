@@ -15,21 +15,17 @@ namespace Clifton.Payment {
         public string Url {
             get { return this["url"] as string; }
         }
-        [ConfigurationProperty("keyId", IsRequired = true)]
-        public string KeyId {
-            get { return this["keyId"] as string; }
+        [ConfigurationProperty("apiKey", IsRequired = true)]
+        public string ApiKey {
+            get { return this["apiKey"] as string; }
         }
-        [ConfigurationProperty("hmacKey", IsRequired = true)]
-        public string HmacKey {
-            get { return this["hmacKey"] as string; }
+        [ConfigurationProperty("apiSecret", IsRequired = true)]
+        public string ApiSecret {
+            get { return this["apiSecret"] as string; }
         }
-        [ConfigurationProperty("id", IsRequired = true)]
-        public string Id {
-            get { return this["id"] as string; }
-        }
-        [ConfigurationProperty("password", IsRequired = true)]
-        public string Password {
-            get { return this["password"] as string; }
+        [ConfigurationProperty("token", IsRequired = true)]
+        public string Token {
+            get { return this["token"] as string; }
         }
     }
 
