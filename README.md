@@ -17,6 +17,7 @@ This integration is for the [newer RESTful API](https://developer.payeezy.com/do
 You'll want to start off by adding a reference to this assembly and creating an app.config/web.config for your project. You can use the included app.config as an example.
 
 You can already test transactions with the values currently in the app.config (I've captured the values from the demo page). But you'll likely want to create your own account; here's how you get started:
+
 1. You'll want to sign up for an account (if you don't already have one). Visit the developer home page [here](https://developer.payeezy.com/) and click "Create Account" in the top right of the site.
 2. Follow the instructions to create, verify, and login to your new account.
 3. Create a new app. It'll ask if you want this app to be a sandbox and I'd recommend saying yes (until your integration is perfect).
@@ -29,6 +30,7 @@ At this point, you're ready to go. Enjoy!
 *Please note that I've removed the SOAP integration from this repo since it's an older (and less flexible) solution.*
 
 You can find the old integration [here](https://github.com/clifton-io/Clifton.Payment/blob/6ef2733171e9ce54281de5f5e9c4e32a003a6ef2/Clifton.Payment/Gateway/PayeezyGateway.cs), but there are a few reasons why I don't think you should use it (and you should use the RESTful version instead).
+
 1. The developers have stated that the RESTful version is intended to be the new version. This means new features will be added to it.
 2. The older SOAP library only supports US merchants while the RESTful version supports US/UK and more countries coming soon.
 3. There are way more examples available which show how to integrate with the RESTful APIs.
