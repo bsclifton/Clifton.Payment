@@ -31,9 +31,9 @@ At this point, you're ready to go. Enjoy!
 
 You can find the old integration [here](https://github.com/clifton-io/Clifton.Payment/blob/6ef2733171e9ce54281de5f5e9c4e32a003a6ef2/Clifton.Payment/Gateway/PayeezyGateway.cs), but there are a few reasons why I don't think you should use it (and you should use the RESTful version instead).
 
-1. The developers have stated that the RESTful version is intended to be the new version. This means new features will be added to it.
-2. The older SOAP library only supports US merchants while the RESTful version supports US/UK and more countries coming soon.
-3. There are way more examples available which show how to integrate with the RESTful APIs.
+1. The [developers have stated](https://developer.payeezy.com/content/preferred-integration-first-data) that the RESTful version is intended to be the new version. This means new features will be added to it.
+2. The older SOAP library only supports US merchants while the RESTful version supports US/UK and more countries/regions coming soon.
+3. There are [way more examples available](https://github.com/payeezy/payeezy_direct_API) which show how to integrate with the RESTful APIs (in several programming languages).
 
 If you're still interested, the documentation about the older SOAP API can be [found here](https://support.payeezy.com/hc/en-us/articles/204029989-First-Data-Payeezy-Gateway-Web-Service-API-Reference-Guide-).
 
