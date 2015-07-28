@@ -1,10 +1,10 @@
 # Clifton.Payment
-.NET/C# code relating to payment processing or point of sale
+Code relating to payment processing or point of sale
 
 ## Check / Credit Card validation
 Very basic check and credit card validation is provided. Keep in mind, web sites are better off using JavaScript to validate client side (rather than hitting the server to do validation).
 
-Please note: this code is geared towards e-Commerce in the United States (other payment logic is very welcome- submit a pull request!)
+Please note: this code is currently geared towards e-Commerce in the United States (but other payment logic is very welcome- submit a pull request!)
 
 ## Supported payment gateways
 
