@@ -23,9 +23,26 @@ You can run test transactions with the [values used in the unit tests](https://g
 4. Once your app is created, you can get the API key and API secret by opening the details for your new app and going to the "Keys" tab.
 5. The merchant token can be obtained by clicking "My Merchants" in the top right of the site. Grab the value in the token field (likely it's the demo account, Acme Sock).
 
-At this point, you're ready to go. You can create an instance of the Clifton.Payment.Gateway.PayeezyGateway class, passing the values captured above (API key/secret, token, url) to the constructor.
+At this point, you're ready add a reference to the Clifton.Payment assembly and start using it.
 
-#### Notes about the older SOAP API (and some of the differences)
+```csharp
+using Clifton.Payment.Gateway;
+
+public class Demo {
+  protected const string key = "y6pWAJNyJyjGv66IsVuWnklkKUPFbb0a";
+  protected const string secret = "86fbae7030253af3cd15faef2a1f4b67353e41fb6799f576b5093ae52901e6f7";
+  protected const string token = "a480ce8951daa73262734cf102641994c1e55e7cdf4c02b6";
+  protected const string url = "https://api-cert.payeezy.com/v1/transactions";
+
+  public function Charge(){
+    PayeezyGateway gw = new PayeezyGateway(key, secret, token, url);
+    gw.CreditCardPurchase("4111111111111111", "01", "20", ...);
+  }
+}
+
+```
+
+#### Notes about the older SOAP API
 *Please note that I've removed the SOAP integration from this repo since it's an older (and less flexible) solution.*
 
 You can find the old integration [here](https://github.com/clifton-io/Clifton.Payment/blob/6ef2733171e9ce54281de5f5e9c4e32a003a6ef2/Clifton.Payment/Gateway/PayeezyGateway.cs), but there are a few reasons why I don't think you should use it (and you should use the RESTful version instead).
@@ -33,15 +50,3 @@ You can find the old integration [here](https://github.com/clifton-io/Clifton.Pa
 1. The [developers have stated](https://developer.payeezy.com/content/preferred-integration-first-data) that the RESTful version is intended to be the new version. This means new features will be added to it.
 2. The older SOAP library only supports US merchants while the RESTful version supports US/UK and more countries/regions coming soon.
 3. There are [way more examples available](https://github.com/payeezy/payeezy_direct_API) which show how to integrate with the RESTful APIs (in several programming languages).
-
-If you're still interested, the documentation about the older SOAP API can be [found here](https://support.payeezy.com/hc/en-us/articles/204029989-First-Data-Payeezy-Gateway-Web-Service-API-Reference-Guide-).
-
-The old SOAP integration I put together had the following configurable parameters:
-* keyId
-* hmacKey
-* id
-* password
-
-You'll have to [sign up for a demo account](https://support.payeezy.com/hc/en-us/articles/203730579-Global-Gateway-e4-Demo-Accounts) to get those values.
-Once logged in, you can go to the Administration tab (top right) and then pick "Terminals". Find the eCommerce terminal and click it for details. You'll find the id (Gateway ID) and password on the
-default screen ("details"). You can find the Key id / Hmac key on the "API Access" screen.
