@@ -14,17 +14,16 @@ Each gateway is intended to process payments over the internet. These are provid
 This integration is for the [newer RESTful API](https://developer.payeezy.com/docs-sandbox).
 
 #### Getting started
-You'll want to start off by adding a reference to this assembly and creating an app.config/web.config for your project. You can use the included app.config as an example.
 
-You can already test transactions with the values currently in the app.config (I've captured the values from the demo page). But you'll likely want to create your own account; here's how you get started:
+You can run test transactions with the [values used in the unit tests](https://github.com/clifton-io/Clifton.Payment/blob/02c1b4c18ea90cffb03d37e4df4dacdb6c55e62e/Clifton.Payment.Tests/Gateway/PayeezyGatewayTests.cs#L17) (I've captured the values from the demo page). But you'll likely want to create your own account; here's how you get started:
 
 1. You'll want to sign up for an account (if you don't already have one). Visit the developer home page [here](https://developer.payeezy.com/) and click "Create Account" in the top right of the site.
 2. Follow the instructions to create, verify, and login to your new account.
 3. Create a new app. It'll ask if you want this app to be a sandbox and I'd recommend saying yes (until your integration is perfect).
-4. Once your app is created, you can get the API key and API secret by opening the details for your new app and going to the "Keys" tab. Store those in your app.config.
-5. The merchant token can be obtained by clicking "My Merchants" in the top right of the site. Grab the value in the token field (likely it's the demo account, Acme Sock) and store this in the app.config.
+4. Once your app is created, you can get the API key and API secret by opening the details for your new app and going to the "Keys" tab.
+5. The merchant token can be obtained by clicking "My Merchants" in the top right of the site. Grab the value in the token field (likely it's the demo account, Acme Sock).
 
-At this point, you're ready to go. Enjoy!
+At this point, you're ready to go. You can create an instance of the Clifton.Payment.Gateway.PayeezyGateway class, passing the values captured above (API key/secret, token, url) to the constructor.
 
 #### Notes about the older SOAP API (and some of the differences)
 *Please note that I've removed the SOAP integration from this repo since it's an older (and less flexible) solution.*
