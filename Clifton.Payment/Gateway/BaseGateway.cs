@@ -1,16 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Globalization;
+using System.Security.Cryptography;
 
 namespace Clifton.Payment.Gateway {
     public abstract class BaseGateway {
-        public abstract void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber);
-        public abstract void CreditCardRefund(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber);
+        #region Properties
 
         protected abstract string ContentType { get; }
+
+        #endregion
+
+        #region Common methods
+
+        protected string GetEpochTimestampInMilliseconds() {
+            long millisecondsSinceEpoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            return millisecondsSinceEpoch.ToString();
+        }
+
+        /// <summary>
+        /// Generates a cryptographically strong random number.
+        /// </summary>
+        /// <see cref="https://en.wikipedia.org/wiki/Cryptographic_nonce"/>
+        protected int GetNonce() {
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider()) {
+                byte[] bytes = new byte[4];
+                rng.GetBytes(bytes);
+                if (BitConverter.IsLittleEndian) {
+                    Array.Reverse(bytes);
+                }
+                return BitConverter.ToInt32(bytes, 0);
+            }
+        }
 
         protected string FormatCardExpirationDate(DateTime expirationDate) {
             return string.Format("{0}{1}", expirationDate.ToString("MM"), expirationDate.ToString("yy"));
@@ -68,5 +88,14 @@ namespace Clifton.Payment.Gateway {
 
             return cardType;
         }
+
+        #endregion
+
+        #region Abstract methods
+
+        public abstract void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber);
+        public abstract void CreditCardRefund(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber);
+
+        #endregion
     }
 }

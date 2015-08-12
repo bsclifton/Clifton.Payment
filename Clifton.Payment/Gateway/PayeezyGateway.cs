@@ -12,7 +12,7 @@ namespace Clifton.Payment.Gateway {
     /// </summary>
     /// <see cref="https://developer.payeezy.com/payeezy-api-reference/apis"/>
     /// <seealso cref="https://developer.payeezy.com/"/>
-    public class PayeezyRest : BaseGateway {
+    public class PayeezyGateway : BaseGateway {
         #region Members
 
         protected Dictionary<CreditCardType, string> CardTypeLookup = new Dictionary<CreditCardType, string>() {
@@ -41,8 +41,12 @@ namespace Clifton.Payment.Gateway {
         };
 
         protected enum MethodType {
-            credit_card
+            CreditCard
         }
+
+        protected Dictionary<MethodType, string> MethodTypeLookup = new Dictionary<MethodType, string>() {
+            { MethodType.CreditCard, "credit_card" }
+        };
 
         protected const string UsDollars = "USD";
 
@@ -50,31 +54,28 @@ namespace Clifton.Payment.Gateway {
 
         #region Properties
 
+        protected string ApiKey { get; set; }
+
+        protected string ApiSecret { get; set; }
+
         protected override string ContentType {
             get { return "application/json"; }
         }
 
+        protected string Token { get; set; }
+
+        protected string Url { get; set; }
+
         #endregion
 
-        protected string GetEpochTimestampInMilliseconds() {
-            long millisecondsSinceEpoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
-            return millisecondsSinceEpoch.ToString();
+        public PayeezyGateway(string apiKey, string apiSecret, string token, string url) {
+            ApiKey = apiKey;
+            ApiSecret = apiSecret;
+            Token = token;
+            Url = url;
         }
 
-        /// <summary>
-        /// Generates a cryptographically strong random number.
-        /// </summary>
-        /// <see cref="https://en.wikipedia.org/wiki/Cryptographic_nonce"/>
-        protected int GetNonce() {
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider()) {
-                byte[] bytes = new byte[4];
-                rng.GetBytes(bytes);
-                if (BitConverter.IsLittleEndian) {
-                    Array.Reverse(bytes);
-                }
-                return BitConverter.ToInt32(bytes, 0);
-            }
-        }
+        #region Common methods
 
         protected string GenerateHmac(string apiKey, string apiSecret, string token, int nonce, string currentTimestamp, string payload) {
             string message = apiKey + nonce.ToString() + currentTimestamp + token + payload;
@@ -106,6 +107,39 @@ namespace Clifton.Payment.Gateway {
             return webRequest;
         }
 
+        protected void ProcessRequest(dynamic payload, string transactionId=null) {
+            string resourceUrl;
+
+            if (!string.IsNullOrWhiteSpace(transactionId)) {
+                resourceUrl = string.Format("{0}/{1}", this.Url, transactionId);
+            } else {
+                resourceUrl = this.Url;
+            }
+
+            string payloadString = JsonConvert.SerializeObject(payload);
+            HttpWebRequest webRequest = CreateRequest(this.ApiKey, this.ApiSecret, this.Token, resourceUrl, payloadString);
+
+            try {
+                using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse()) {
+                    using (StreamReader responseStream = new StreamReader(webResponse.GetResponseStream())) {
+                        string responseString = responseStream.ReadToEnd();
+                    }
+
+                    //TODO: handle/process success
+                }
+            } catch (WebException ex) {
+                if (ex.Response != null) {
+                    using (HttpWebResponse errorResponse = (HttpWebResponse)ex.Response) {
+                        using (StreamReader reader = new StreamReader(errorResponse.GetResponseStream())) {
+                            string exception = reader.ReadToEnd();
+                            //TODO: handle/process failure. Until then, rethrow.
+                            throw;
+                        }
+                    }
+                }
+            }
+        }
+
         protected CreditCardType ValidateAndParseCardDetails(string cardNumber, string expirationMonth, string expirationYear, out DateTime parsedExpirationDate) {
             CreditCardType cardType = base.ValidateCreditCard(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
             if (!CardTypeLookup.ContainsKey(cardType)) {
@@ -114,8 +148,10 @@ namespace Clifton.Payment.Gateway {
             return cardType;
         }
 
-        /// <see cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20-1"/>
-        public override void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
+        #endregion
+
+        /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
+        public void CreditCardAuthorize(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
             CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
@@ -123,8 +159,8 @@ namespace Clifton.Payment.Gateway {
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
-                transaction_type = TransactionTypeLookup[TransactionType.Purchase],
-                method = MethodType.credit_card.ToString(),
+                transaction_type = TransactionTypeLookup[TransactionType.Authorize],
+                method = MethodTypeLookup[MethodType.CreditCard],
                 amount = dollarAmount,
                 currency_code = UsDollars,
                 credit_card = new {
@@ -136,30 +172,33 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            var config = Clifton.Payment.Configuration.GetConfig().Gateways["FirstData"];
-            string payloadString = JsonConvert.SerializeObject(payload);
-            HttpWebRequest webRequest = CreateRequest(config.ApiKey, config.ApiSecret, config.Token, config.Url, payloadString);
+            ProcessRequest(payload);
+        }
 
-            string responseString;
-            try {
-                using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse()) {
-                    using (StreamReader responseStream = new StreamReader(webResponse.GetResponseStream())) {
-                        responseString = responseStream.ReadToEnd();
-                    }
+        /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
+        public override void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
+            DateTime parsedExpirationDate;
+            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
-                    //TODO: handle/process success
+            //TODO: validate amount (no decimal places allowed; must be in cents)
+
+            dynamic payload = new {
+                merchant_ref = referenceNumber,
+                transaction_type = TransactionTypeLookup[TransactionType.Purchase],
+                method = MethodTypeLookup[MethodType.CreditCard],
+                amount = dollarAmount,
+                partial_redemption = false,
+                currency_code = UsDollars,
+                credit_card = new {
+                    type = CardTypeLookup[cardType],
+                    cardholder_name = cardHoldersName,
+                    card_number = cardNumber,
+                    exp_date = FormatCardExpirationDate(parsedExpirationDate),
+                    cvv = cardVerificationValue //TODO: validate
                 }
-            } catch (WebException ex) {
-                if (ex.Response != null) {
-                    using (HttpWebResponse errorResponse = (HttpWebResponse)ex.Response) {
-                        using (StreamReader reader = new StreamReader(errorResponse.GetResponseStream())) {
-                            string remoteEx = reader.ReadToEnd();
-                            //TODO: handle/process failure. Until then, rethrow.
-                            throw;
-                        }
-                    }
-                }
-            }
+            };
+
+            ProcessRequest(payload);
         }
 
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
@@ -172,7 +211,7 @@ namespace Clifton.Payment.Gateway {
             dynamic payload = new {
                 merchant_ref = referenceNumber,
                 transaction_type = TransactionTypeLookup[TransactionType.Refund],
-                method = MethodType.credit_card.ToString(),
+                method = MethodTypeLookup[MethodType.CreditCard],
                 amount = dollarAmount,
                 currency_code = UsDollars,
                 credit_card = new {
@@ -184,30 +223,23 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            var config = Clifton.Payment.Configuration.GetConfig().Gateways["FirstData"];
-            string payloadString = JsonConvert.SerializeObject(payload);
-            HttpWebRequest webRequest = CreateRequest(config.ApiKey, config.ApiSecret, config.Token, config.Url, payloadString);
+            ProcessRequest(payload);
+        }
 
-            string responseString;
-            try {
-                using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse()) {
-                    using (StreamReader responseStream = new StreamReader(webResponse.GetResponseStream())) {
-                        responseString = responseStream.ReadToEnd();
-                    }
+        /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
+        public void CreditCardVoid(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
+            //TODO: validate
 
-                    //TODO: handle/process success
-                }
-            } catch (WebException ex) {
-                if (ex.Response != null) {
-                    using (HttpWebResponse errorResponse = (HttpWebResponse)ex.Response) {
-                        using (StreamReader reader = new StreamReader(errorResponse.GetResponseStream())) {
-                            string remoteEx = reader.ReadToEnd();
-                            //TODO: handle/process failure. Until then, rethrow.
-                            throw;
-                        }
-                    }
-                }
-            }
+            dynamic payload = new {
+                merchant_ref = referenceNumber,
+                transaction_tag = transactionTag,
+                transaction_type = TransactionTypeLookup[TransactionType.Void],
+                method = MethodTypeLookup[MethodType.CreditCard],
+                amount = dollarAmount,
+                currency_code = UsDollars
+            };
+
+            ProcessRequest(payload, transactionId);
         }
     }
 }

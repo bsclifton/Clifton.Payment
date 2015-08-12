@@ -3,6 +3,7 @@
 namespace Clifton.Payment {
     public class CreditCard {
         private static string SanitizeCardNumber(string cardNumber) {
+            //TODO: update to just grab all numbers
             return Regex.Replace(cardNumber.Trim(), @"\s+", string.Empty);
         }
 
