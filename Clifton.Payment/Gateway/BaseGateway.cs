@@ -3,13 +3,12 @@ using System.Globalization;
 using System.Security.Cryptography;
 
 namespace Clifton.Payment.Gateway {
+    public static class MimeTypes {
+        ///<summary>JavaScript Object Notation JSON; Defined in RFC 4627</summary>
+        public const string ApplicationJson = "application/json";
+    }
+
     public abstract class BaseGateway {
-        #region Properties
-
-        protected abstract string ContentType { get; }
-
-        #endregion
-
         #region Common methods
 
         protected string GetEpochTimestampInMilliseconds() {
@@ -88,13 +87,6 @@ namespace Clifton.Payment.Gateway {
 
             return cardType;
         }
-
-        #endregion
-
-        #region Abstract methods
-
-        public abstract void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber);
-        public abstract void CreditCardRefund(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber);
 
         #endregion
     }

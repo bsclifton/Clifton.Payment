@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Clifton.Payment {
-    public class Check {
+    public sealed class Check {
         private const char FieldSeparator = '<';
 
         public string AccountNumber = string.Empty;

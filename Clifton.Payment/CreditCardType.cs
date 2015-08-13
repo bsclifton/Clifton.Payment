@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Clifton.Payment {
     public enum CreditCardType {
-        Invalid = -1,
+        Invalid,
         Diners,
         AmericanExpress,
         Visa,

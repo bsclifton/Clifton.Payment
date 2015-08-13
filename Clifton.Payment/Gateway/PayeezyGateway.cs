@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
@@ -13,6 +15,127 @@ namespace Clifton.Payment.Gateway {
     /// <see cref="https://developer.payeezy.com/payeezy-api-reference/apis"/>
     /// <seealso cref="https://developer.payeezy.com/"/>
     public class PayeezyGateway : BaseGateway {
+        #region Types
+
+        public enum TransactionType {
+            Authorize,
+            Purchase,
+            Void,
+            Capture,
+            Split,
+            Refund
+        }
+
+        public enum MethodType {
+            CreditCard
+        }
+
+        public enum TransactionStatus {
+            Approved,
+            Declined,
+            NotProcessed
+        }
+
+        public enum GatewayResponseCode {
+            Unknown,
+            TransactionNormal,
+
+            CVV2_CID_CVC2_DataNotVerified,
+            InvalidCreditCardNumber,
+            InvalidExpiryDate,
+            InvalidAmount,
+            InvalidCardHolder,
+            InvalidAuthorizationNo,
+            InvalidVerificationString,
+            InvalidTransactionCode,
+            InvalidReferenceNo,
+            InvalidAvsString,
+            InvalidCustomerReferenceNumber,
+            InvalidDuplicate,
+            InvalidRefund,
+            RestrictedCardNumber,
+            InvalidTransactionTag,
+            DataWithinTransactionIncorrect,
+            InvalidAuthNumberOnPreAuthCompletion,
+
+            InvalidSequenceNo,
+            MessageTimedOutAtHost,
+            BceFunctionError,
+            InvalidResponseFromPayeezy,
+            InvalidDateFromHost,
+
+            InvalidTransactionDescription,
+            InvalidGatewayID,
+            InvalidTransactionNumber,
+            ConnectionInactive,
+            UnmatchedTransaction,
+            InvalidReversalResponse,
+            UnableToSendSocketTransaction,
+            UnableToWriteTransactionToFile,
+            UnableToVoidTransaction,
+            PaymentTypeNotSupportedByMerchant,
+            UnableToConnect,
+            UnableToSendLogon,
+            UnableToSendTrans,
+            InvalidLogon,
+            TerminalNotActivated,
+            Terminal_Gateway_Mismatch,
+            InvalidProcessingCenter,
+            NoProcessorsAvailable,
+            DatabaseUnavailable,
+            SocketError,
+            HostNotReady,
+
+            AddressNotVerified,
+            TransactionPlacedInQueue,
+            TransactionReceivedFromBank,
+            ReversalPending,
+            ReversalComplete,
+            ReversalSentToBank,
+
+            FraudSuspected_AddressCheckFailed,
+            FraudSuspected_Card_Check_Number_CheckFailed,
+            FraudSuspected_CountryCheckFailed,
+            FraudSuspected_CustomerReferenceCheckFailed,
+            FraudSuspected_EmailAddressCheckFailed,
+            FraudSuspected_IpAddressCheckFailed
+        }
+
+        public class Response {
+            //public MethodType Method { get; set; }
+            public string Amount { get; set; }
+            public string Currency { get; set; }
+            /*
+            "avs": "{string}",
+            "cvv2": "{string}",
+            "card": {
+                "type": "{string}",
+                "cardholder_name": "{string}",
+                "card_number": "{string}",
+                "exp_date": "{string}"
+            },
+            "token": {
+                "token_type": "{string}",
+                "token_data": {
+                    "value": "{string}"
+                }
+            },
+            */
+            //public TransactionStatus TransactionStatus { get; set; }
+            public string ValidationStatus { get; set; }
+            //public TransactionType TransactionType { get; set; }
+            public string TransactionId { get; set; }
+            public string TransactionTag { get; set; }
+            public string BankResponseCode { get; set; }
+            public string BankMessage { get; set; }
+            public string GatewayResponseCode { get; set; }
+            public GatewayResponseCode ParsedGatewayResponseCode { get; set; }
+            public string GatewayMessage { get; set; }
+            public string CorrelationId { get; set; }
+        }
+
+        #endregion
+
         #region Members
 
         protected Dictionary<CreditCardType, string> CardTypeLookup = new Dictionary<CreditCardType, string>() {
@@ -21,15 +144,6 @@ namespace Clifton.Payment.Gateway {
             { CreditCardType.MasterCard, "Mastercard" },
             { CreditCardType.Discover, "Discover" }
         };
-
-        protected enum TransactionType {
-            Authorize,
-            Purchase,
-            Void,
-            Capture,
-            Split,
-            Refund
-        }
 
         protected Dictionary<TransactionType, string> TransactionTypeLookup = new Dictionary<TransactionType, string>() {
             { TransactionType.Authorize, "authorize" },
@@ -40,15 +154,80 @@ namespace Clifton.Payment.Gateway {
             { TransactionType.Refund, "refund" }
         };
 
-        protected enum MethodType {
-            CreditCard
-        }
-
         protected Dictionary<MethodType, string> MethodTypeLookup = new Dictionary<MethodType, string>() {
             { MethodType.CreditCard, "credit_card" }
         };
 
-        protected const string UsDollars = "USD";
+        protected Dictionary<string, GatewayResponseCode> GatewayResponseCodeLookup = new Dictionary<string, GatewayResponseCode>() {
+            //This response code indicates that the transaction was processed normally.
+            //Please refer to the bank and approval response information for bank approval Status.
+            { "00", GatewayResponseCode.TransactionNormal },
+            //The following response codes indicate invalid data in the transaction.
+            //In these cases, the data should be changed before attempting to resend the transaction.
+            //These response codes are generated by the remote Plug-In.
+            { "08", GatewayResponseCode.CVV2_CID_CVC2_DataNotVerified },
+            { "22", GatewayResponseCode.InvalidCreditCardNumber },
+            { "25", GatewayResponseCode.InvalidExpiryDate },
+            { "26", GatewayResponseCode.InvalidAmount },
+            { "27", GatewayResponseCode.InvalidCardHolder },
+            { "28", GatewayResponseCode.InvalidAuthorizationNo },
+            { "31", GatewayResponseCode.InvalidVerificationString },
+            { "32", GatewayResponseCode.InvalidTransactionCode },
+            { "57", GatewayResponseCode.InvalidReferenceNo },
+            { "58", GatewayResponseCode.InvalidAvsString },
+            { "60", GatewayResponseCode.InvalidCustomerReferenceNumber },
+            { "63", GatewayResponseCode.InvalidDuplicate },
+            { "64", GatewayResponseCode.InvalidRefund },
+            { "68", GatewayResponseCode.RestrictedCardNumber },
+            { "69", GatewayResponseCode.InvalidTransactionTag },
+            { "72", GatewayResponseCode.DataWithinTransactionIncorrect },
+            { "93", GatewayResponseCode.InvalidAuthNumberOnPreAuthCompletion },
+            // The following response codes indicate a problem with the merchant configuration at the financial institution.
+            // Please contact Payeezy for further investigation.
+            { "11", GatewayResponseCode.InvalidSequenceNo },
+            { "12", GatewayResponseCode.MessageTimedOutAtHost },
+            { "21", GatewayResponseCode.BceFunctionError },
+            { "23", GatewayResponseCode.InvalidResponseFromPayeezy },
+            { "30", GatewayResponseCode.InvalidDateFromHost },
+            // The following response codes indicate a problem with the Global Gateway e4℠ host or an error in the merchant configuration.
+            // Please contact Payeezy for further investigation.
+            { "10", GatewayResponseCode.InvalidTransactionDescription },
+            { "14", GatewayResponseCode.InvalidGatewayID },
+            { "15", GatewayResponseCode.InvalidTransactionNumber },
+            { "16", GatewayResponseCode.ConnectionInactive },
+            { "17", GatewayResponseCode.UnmatchedTransaction },
+            { "18", GatewayResponseCode.InvalidReversalResponse },
+            { "19", GatewayResponseCode.UnableToSendSocketTransaction },
+            { "20", GatewayResponseCode.UnableToWriteTransactionToFile },
+            { "24", GatewayResponseCode.UnableToVoidTransaction },
+            { "37", GatewayResponseCode.PaymentTypeNotSupportedByMerchant },
+            { "40", GatewayResponseCode.UnableToConnect },
+            { "41", GatewayResponseCode.UnableToSendLogon },
+            { "42", GatewayResponseCode.UnableToSendTrans },
+            { "43", GatewayResponseCode.InvalidLogon },
+            { "52", GatewayResponseCode.TerminalNotActivated },
+            { "53", GatewayResponseCode.Terminal_Gateway_Mismatch },
+            { "54", GatewayResponseCode.InvalidProcessingCenter },
+            { "55", GatewayResponseCode.NoProcessorsAvailable },
+            { "56", GatewayResponseCode.DatabaseUnavailable },
+            { "61", GatewayResponseCode.SocketError },
+            { "62", GatewayResponseCode.HostNotReady },
+            // The following response codes indicate the final state of a transaction.
+            // In the event of one of these codes being returned, please contact Payeezy for further investigation.
+            { "44", GatewayResponseCode.AddressNotVerified },
+            { "70", GatewayResponseCode.TransactionPlacedInQueue },
+            { "73", GatewayResponseCode.TransactionReceivedFromBank },
+            { "76", GatewayResponseCode.ReversalPending },
+            { "77", GatewayResponseCode.ReversalComplete },
+            { "79", GatewayResponseCode.ReversalSentToBank },
+            // The following response codes indicate the final state of a transaction due to custom Fraud Filters created by the Merchant.
+            { "F1", GatewayResponseCode.FraudSuspected_AddressCheckFailed },
+            { "F2", GatewayResponseCode.FraudSuspected_Card_Check_Number_CheckFailed },
+            { "F3", GatewayResponseCode.FraudSuspected_CountryCheckFailed },
+            { "F4", GatewayResponseCode.FraudSuspected_CustomerReferenceCheckFailed },
+            { "F5", GatewayResponseCode.FraudSuspected_EmailAddressCheckFailed },
+            { "F6", GatewayResponseCode.FraudSuspected_IpAddressCheckFailed }
+        };
 
         #endregion
 
@@ -58,9 +237,7 @@ namespace Clifton.Payment.Gateway {
 
         protected string ApiSecret { get; set; }
 
-        protected override string ContentType {
-            get { return "application/json"; }
-        }
+        protected string CurrencyCode { get; private set; }
 
         protected string Token { get; set; }
 
@@ -73,6 +250,8 @@ namespace Clifton.Payment.Gateway {
             ApiSecret = apiSecret;
             Token = token;
             Url = url;
+            //NOTE: hardcoded to USD for now
+            CurrencyCode = new RegionInfo("US").ISOCurrencySymbol;
         }
 
         #region Common methods
@@ -90,8 +269,8 @@ namespace Clifton.Payment.Gateway {
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.Method = "POST";
-            webRequest.ContentType = ContentType;
-            webRequest.Accept = ContentType;
+            webRequest.ContentType = MimeTypes.ApplicationJson;
+            webRequest.Accept = MimeTypes.ApplicationJson;
             webRequest.Headers.Add("apikey", apiKey);
             webRequest.Headers.Add("token", token);
             webRequest.Headers.Add("nonce", nonce.ToString());
@@ -107,7 +286,40 @@ namespace Clifton.Payment.Gateway {
             return webRequest;
         }
 
-        protected void ProcessRequest(dynamic payload, string transactionId=null) {
+        public Response ParseResponse(string responseString) {
+            dynamic responseObject = JObject.Parse(responseString);
+
+            Response response = new Response {
+                //TODO: method
+                Amount = responseObject.amount,
+                Currency = responseObject.currency,
+
+                //...
+                //TODO: avs/cvv2/card/token
+                //...
+
+                //TODO: transaction_status
+                ValidationStatus = responseObject.validation_status,
+                //TODO: transaction_type
+                TransactionId = responseObject.transaction_id,
+                TransactionTag = responseObject.transaction_tag,
+                BankResponseCode = responseObject.bank_resp_code,
+                BankMessage = responseObject.bank_message,
+                GatewayResponseCode = responseObject.gateway_resp_code,
+                GatewayMessage = responseObject.gateway_message,
+                CorrelationId = responseObject.correlation_id
+            };
+
+            if (GatewayResponseCodeLookup.ContainsKey(response.GatewayResponseCode)) {
+                response.ParsedGatewayResponseCode = GatewayResponseCodeLookup[response.GatewayResponseCode];
+            } else {
+                response.ParsedGatewayResponseCode = GatewayResponseCode.Unknown;
+            }
+
+            return response;
+        }
+
+        protected Response ProcessRequest(dynamic payload, string transactionId = null) {
             string resourceUrl;
 
             if (!string.IsNullOrWhiteSpace(transactionId)) {
@@ -118,14 +330,13 @@ namespace Clifton.Payment.Gateway {
 
             string payloadString = JsonConvert.SerializeObject(payload);
             HttpWebRequest webRequest = CreateRequest(this.ApiKey, this.ApiSecret, this.Token, resourceUrl, payloadString);
+            string responseString;
 
             try {
                 using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse()) {
                     using (StreamReader responseStream = new StreamReader(webResponse.GetResponseStream())) {
-                        string responseString = responseStream.ReadToEnd();
+                        responseString = responseStream.ReadToEnd();
                     }
-
-                    //TODO: handle/process success
                 }
             } catch (WebException ex) {
                 if (ex.Response != null) {
@@ -137,7 +348,10 @@ namespace Clifton.Payment.Gateway {
                         }
                     }
                 }
+                throw;
             }
+
+            return ParseResponse(responseString);
         }
 
         protected CreditCardType ValidateAndParseCardDetails(string cardNumber, string expirationMonth, string expirationYear, out DateTime parsedExpirationDate) {
@@ -151,7 +365,7 @@ namespace Clifton.Payment.Gateway {
         #endregion
 
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
-        public void CreditCardAuthorize(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
+        public Response CreditCardAuthorize(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
             CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
@@ -162,7 +376,7 @@ namespace Clifton.Payment.Gateway {
                 transaction_type = TransactionTypeLookup[TransactionType.Authorize],
                 method = MethodTypeLookup[MethodType.CreditCard],
                 amount = dollarAmount,
-                currency_code = UsDollars,
+                currency_code = CurrencyCode,
                 credit_card = new {
                     type = CardTypeLookup[cardType],
                     cardholder_name = cardHoldersName,
@@ -172,11 +386,11 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            ProcessRequest(payload);
+            return ProcessRequest(payload);
         }
 
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
-        public override void CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
+        public Response CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
             CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
@@ -188,7 +402,7 @@ namespace Clifton.Payment.Gateway {
                 method = MethodTypeLookup[MethodType.CreditCard],
                 amount = dollarAmount,
                 partial_redemption = false,
-                currency_code = UsDollars,
+                currency_code = CurrencyCode,
                 credit_card = new {
                     type = CardTypeLookup[cardType],
                     cardholder_name = cardHoldersName,
@@ -198,11 +412,11 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            ProcessRequest(payload);
+            return ProcessRequest(payload);
         }
 
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
-        public override void CreditCardRefund(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
+        public Response CreditCardRefund(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
             CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
@@ -213,7 +427,7 @@ namespace Clifton.Payment.Gateway {
                 transaction_type = TransactionTypeLookup[TransactionType.Refund],
                 method = MethodTypeLookup[MethodType.CreditCard],
                 amount = dollarAmount,
-                currency_code = UsDollars,
+                currency_code = CurrencyCode,
                 credit_card = new {
                     type = CardTypeLookup[cardType],
                     cardholder_name = cardHoldersName,
@@ -223,11 +437,11 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            ProcessRequest(payload);
+            return ProcessRequest(payload);
         }
 
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
-        public void CreditCardVoid(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
+        public Response CreditCardVoid(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
             //TODO: validate
 
             dynamic payload = new {
@@ -236,10 +450,10 @@ namespace Clifton.Payment.Gateway {
                 transaction_type = TransactionTypeLookup[TransactionType.Void],
                 method = MethodTypeLookup[MethodType.CreditCard],
                 amount = dollarAmount,
-                currency_code = UsDollars
+                currency_code = CurrencyCode
             };
 
-            ProcessRequest(payload, transactionId);
+            return ProcessRequest(payload, transactionId);
         }
     }
 }
