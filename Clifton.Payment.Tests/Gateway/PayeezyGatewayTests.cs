@@ -24,24 +24,39 @@ namespace Clifton.Payment.Tests.Gateway {
 
         [TestMethod]
         public void PayeezyGateway_CreditCardAuthorize_HappyPath() {
-            GetReference().CreditCardAuthorize(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
+            var response = GetReference().CreditCardAuthorize(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
+            Assert.IsNotNull(response.TransactionId);
+            Assert.AreEqual(PayeezyGateway.TransactionStatus.Approved, response.ParsedTransactionStatus);
+            Assert.AreEqual(PayeezyGateway.TransactionType.Authorize, response.ParsedTransactionType);
         }
 
         [TestMethod]
         public void PayeezyGateway_CreditCardPurchase_HappyPath() {
-            GetReference().CreditCardPurchase(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
+            var response = GetReference().CreditCardPurchase(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
         }
 
         [TestMethod]
         public void PayeezyGateway_CreditCardRefund_HappyPath() {
-            GetReference().CreditCardRefund(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
+            var response = GetReference().CreditCardRefund(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
         }
 
-        //[TestMethod]
-        //public void PayeezyGateway_CreditCardVoid_HappyPath() {
-        //    //TODO: need to run an authorize first, before this can be used. Then pass the transaction id/tag
-        //    GetReference().CreditCardVoid("ET102461", Guid.NewGuid().ToString(), "58739711", sampleDollarAmount);
-        //}
+        [TestMethod]
+        public void PayeezyGateway_CreditCardVoid_HappyPath() {
+            var authResponse = GetReference().CreditCardAuthorize(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
+            var voidResponse = GetReference().CreditCardVoid(authResponse.TransactionId, Guid.NewGuid().ToString(), authResponse.TransactionTag, sampleDollarAmount);
+
+            Assert.IsNotNull(voidResponse.TransactionId);
+            Assert.AreEqual(PayeezyGateway.TransactionStatus.Approved, voidResponse.ParsedTransactionStatus);
+            Assert.AreEqual(PayeezyGateway.TransactionType.Void, voidResponse.ParsedTransactionType);
+        }
+
+        [TestMethod]
+        public void PayeezyGateway_CreditCardVoid_DifferentDollarAmount() {
+            var authResponse = GetReference().CreditCardAuthorize(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
+            var voidResponse = GetReference().CreditCardVoid(authResponse.TransactionId, Guid.NewGuid().ToString(), authResponse.TransactionTag, "12345");
+
+            Assert.AreEqual(PayeezyGateway.TransactionStatus.NotProcessed, voidResponse.ParsedTransactionStatus);
+        }
 
         [TestMethod]
         [ExpectedException(typeof(CardNumberNullException))]
