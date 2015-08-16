@@ -51,7 +51,14 @@
     <Compile Include="Check.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Gateway\BaseGateway.cs" />
-    <Compile Include="Gateway\PayeezyGateway.cs" />
+    <Compile Include="Gateway\Payeezy\BankResponseCode.cs" />
+    <Compile Include="Gateway\Payeezy\CardType.cs" />
+    <Compile Include="Gateway\Payeezy\GatewayResponseCode.cs" />
+    <Compile Include="Gateway\Payeezy\MethodType.cs" />
+    <Compile Include="Gateway\Payeezy\PayeezyGateway.cs" />
+    <Compile Include="Gateway\Payeezy\Response.cs" />
+    <Compile Include="Gateway\Payeezy\TransactionStatus.cs" />
+    <Compile Include="Gateway\Payeezy\TransactionType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

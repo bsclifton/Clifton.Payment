@@ -43,7 +43,7 @@ namespace Clifton.Payment.Tests.Gateway {
         [TestMethod]
         public void PayeezyGateway_CreditCardVoid_HappyPath() {
             var authResponse = GetReference().CreditCardAuthorize(validVisa, "01", twoDigitYear, sampleDollarAmount, cardHolderName, "123", Guid.NewGuid().ToString());
-            var voidResponse = GetReference().CreditCardVoid(authResponse.TransactionId, Guid.NewGuid().ToString(), authResponse.TransactionTag, sampleDollarAmount);
+            var voidResponse = GetReference().CreditCardVoid(authResponse.TransactionId, Guid.NewGuid().ToString(), authResponse.TransactionTag, authResponse.Amount);
 
             Assert.IsNotNull(voidResponse.TransactionId);
             Assert.AreEqual(PayeezyGateway.TransactionStatus.Approved, voidResponse.ParsedTransactionStatus);
