@@ -36,7 +36,7 @@ public class Demo {
 
   public function Charge(){
     PayeezyGateway gw = new PayeezyGateway(key, secret, token, url);
-    gw.CreditCardPurchase("4111111111111111", "01", "20", ...);
+    var response = gw.CreditCardPurchase("4111111111111111", "01", "20", ...);
   }
 }
 
@@ -50,3 +50,6 @@ You can find the old integration [here](https://github.com/clifton-io/Clifton.Pa
 1. The [developers have stated](https://developer.payeezy.com/content/preferred-integration-first-data) that the RESTful version is intended to be the new version. This means new features will be added to it.
 2. The older SOAP library only supports US merchants while the RESTful version supports US/UK and more countries/regions coming soon.
 3. There are [way more examples available](https://github.com/payeezy/payeezy_direct_API) which show how to integrate with the RESTful APIs (in several programming languages).
+
+# License
+Clifton.Payment is released under the MIT License. See the [bundled LICENSE](https://github.com/clifton-io/Clifton.Payment/blob/master/LICENSE) file for details.
