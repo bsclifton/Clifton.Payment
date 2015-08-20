@@ -9,8 +9,6 @@ namespace Clifton.Payment.Gateway {
     }
 
     public abstract class BaseGateway {
-        #region Common methods
-
         protected string GetEpochTimestampInMilliseconds() {
             long millisecondsSinceEpoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
             return millisecondsSinceEpoch.ToString();
@@ -33,6 +31,62 @@ namespace Clifton.Payment.Gateway {
 
         protected string FormatCardExpirationDate(DateTime expirationDate) {
             return string.Format("{0}{1}", expirationDate.ToString("MM"), expirationDate.ToString("yy"));
+        }
+
+        protected string ValidateDollarAmount(string dollarAmount) {
+            if (string.IsNullOrWhiteSpace(dollarAmount)) {
+                throw new DollarAmountNullException("Dollar amount is null / empty");
+            }
+
+            dollarAmount = dollarAmount.Trim();
+
+            //TODO: validate amount (decimal place, etc)
+
+            return dollarAmount;
+        }
+
+        protected string GetDollarAmountAsCents(string dollarAmount) {
+            //TODO: ...
+
+            return dollarAmount;
+        }
+
+        protected string ValidateCardSecurityCode(CreditCardType cardType, string cardVerificationValue) {
+            if (string.IsNullOrWhiteSpace(cardVerificationValue)) {
+                throw new CardSecurityCodeNullException("Card security code is null / empty");
+            }
+
+            cardVerificationValue = cardVerificationValue.Trim();
+
+            switch (cardType) {
+                case CreditCardType.AmericanExpress:
+                    // American Express cards have a four-digit code printed on the front side of the card above the number.
+                    if (cardVerificationValue.Length != 4) {
+                        throw new CardSecurityCodeFormatException("Card security code must be 4 digits");
+                    }
+                    break;
+
+                case CreditCardType.Diners:
+                case CreditCardType.Discover:
+                case CreditCardType.MasterCard:
+                case CreditCardType.Visa:
+                    // Diners Club, Discover, JCB, MasterCard, and Visa credit and debit cards have a three-digit card security code.
+                    // The code is the final group of numbers printed on the back signature panel of the card.
+                    if (cardVerificationValue.Length != 3) {
+                        throw new CardSecurityCodeFormatException("Card security code must be 3 digits");
+                    }
+                    break;
+
+                default:
+                    throw new CardTypeNotSupportedException("Card type does not support card security code");
+            }
+
+            int parsedCardSecurityCode;
+            if (!int.TryParse(cardVerificationValue, out parsedCardSecurityCode)) {
+                throw new CardSecurityCodeFormatException("Card security code must be numeric");
+            }
+
+            return cardVerificationValue;
         }
 
         protected CreditCardType ValidateCreditCard(string cardNumber, string expirationMonth, string expirationYear, out DateTime parsedExpirationDate) {
@@ -87,7 +141,5 @@ namespace Clifton.Payment.Gateway {
 
             return cardType;
         }
-
-        #endregion
     }
 }

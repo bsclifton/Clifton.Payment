@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Clifton.Payment {
     [Serializable]
@@ -77,6 +73,39 @@ namespace Clifton.Payment {
         public CardExpiredException(string message) : base(message) { }
         public CardExpiredException(string message, Exception inner) : base(message, inner) { }
         protected CardExpiredException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+    }
+
+    [Serializable]
+    public class CardSecurityCodeNullException : ArgumentNullException {
+        public CardSecurityCodeNullException() { }
+        public CardSecurityCodeNullException(string message) : base(message) { }
+        public CardSecurityCodeNullException(string message, Exception inner) : base(message, inner) { }
+        protected CardSecurityCodeNullException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+    }
+
+    [Serializable]
+    public class CardSecurityCodeFormatException : FormatException {
+        public CardSecurityCodeFormatException() { }
+        public CardSecurityCodeFormatException(string message) : base(message) { }
+        public CardSecurityCodeFormatException(string message, Exception inner) : base(message, inner) { }
+        protected CardSecurityCodeFormatException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+    }
+
+    [Serializable]
+    public class DollarAmountNullException : Exception {
+        public DollarAmountNullException() { }
+        public DollarAmountNullException(string message) : base(message) { }
+        public DollarAmountNullException(string message, Exception inner) : base(message, inner) { }
+        protected DollarAmountNullException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context)
             : base(info, context) { }

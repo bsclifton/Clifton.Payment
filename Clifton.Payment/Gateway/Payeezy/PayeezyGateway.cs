@@ -187,9 +187,10 @@ namespace Clifton.Payment.Gateway {
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
         public Response CreditCardAuthorize(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
-            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
-            //TODO: validate amount (no decimal places allowed; must be in cents)
+            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
+            cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
+            dollarAmount = ValidateDollarAmount(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
@@ -202,7 +203,7 @@ namespace Clifton.Payment.Gateway {
                     cardholder_name = cardHoldersName,
                     card_number = cardNumber,
                     exp_date = FormatCardExpirationDate(parsedExpirationDate),
-                    cvv = cardVerificationValue //TODO: validate
+                    cvv = cardVerificationValue
                 }
             };
 
@@ -212,9 +213,10 @@ namespace Clifton.Payment.Gateway {
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
         public Response CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
-            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
-            //TODO: validate amount (no decimal places allowed; must be in cents)
+            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
+            cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
+            dollarAmount = ValidateDollarAmount(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
@@ -228,7 +230,7 @@ namespace Clifton.Payment.Gateway {
                     cardholder_name = cardHoldersName,
                     card_number = cardNumber,
                     exp_date = FormatCardExpirationDate(parsedExpirationDate),
-                    cvv = cardVerificationValue //TODO: validate
+                    cvv = cardVerificationValue
                 }
             };
 
@@ -238,9 +240,10 @@ namespace Clifton.Payment.Gateway {
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
         public Response CreditCardRefund(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
-            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
 
-            //TODO: validate amount (no decimal places allowed; must be in cents)
+            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
+            cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
+            dollarAmount = ValidateDollarAmount(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
@@ -253,7 +256,7 @@ namespace Clifton.Payment.Gateway {
                     cardholder_name = cardHoldersName,
                     card_number = cardNumber,
                     exp_date = FormatCardExpirationDate(parsedExpirationDate),
-                    cvv = cardVerificationValue //TODO: validate
+                    cvv = cardVerificationValue
                 }
             };
 
@@ -262,7 +265,7 @@ namespace Clifton.Payment.Gateway {
 
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
         public Response CreditCardVoid(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
-            //TODO: validate
+            dollarAmount = ValidateDollarAmount(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
