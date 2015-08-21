@@ -29,6 +29,10 @@ namespace Clifton.Payment.Gateway {
 
         #endregion
 
+        /// <summary>
+        /// When testing in CERT environment, the correct URL is https://api-cert.payeezy.com/v1/
+        /// In PROD environment, the correct URL is https://api.payeezy.com/v1/
+        /// </summary>
         public PayeezyGateway(string apiKey, string apiSecret, string token, string url) {
             ApiKey = apiKey;
             ApiSecret = apiSecret;
@@ -190,7 +194,7 @@ namespace Clifton.Payment.Gateway {
 
             CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
             cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
-            dollarAmount = ValidateDollarAmount(dollarAmount);
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
@@ -216,7 +220,7 @@ namespace Clifton.Payment.Gateway {
 
             CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
             cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
-            dollarAmount = ValidateDollarAmount(dollarAmount);
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
@@ -243,7 +247,7 @@ namespace Clifton.Payment.Gateway {
 
             CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
             cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
-            dollarAmount = ValidateDollarAmount(dollarAmount);
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,
@@ -265,7 +269,7 @@ namespace Clifton.Payment.Gateway {
 
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
         public Response CreditCardVoid(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
-            dollarAmount = ValidateDollarAmount(dollarAmount);
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 
             dynamic payload = new {
                 merchant_ref = referenceNumber,

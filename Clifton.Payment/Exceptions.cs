@@ -110,4 +110,15 @@ namespace Clifton.Payment {
           System.Runtime.Serialization.StreamingContext context)
             : base(info, context) { }
     }
+
+    [Serializable]
+    public class DollarAmountInvalidException : FormatException {
+        public DollarAmountInvalidException() { }
+        public DollarAmountInvalidException(string message) : base(message) { }
+        public DollarAmountInvalidException(string message, Exception inner) : base(message, inner) { }
+        protected DollarAmountInvalidException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+    }
 }

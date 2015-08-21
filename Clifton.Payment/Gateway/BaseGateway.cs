@@ -9,6 +9,10 @@ namespace Clifton.Payment.Gateway {
     }
 
     public abstract class BaseGateway {
+        protected CultureInfo UsCulture {
+            get { return new CultureInfo("US"); }
+        }
+
         protected string GetEpochTimestampInMilliseconds() {
             long millisecondsSinceEpoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds;
             return millisecondsSinceEpoch.ToString();
@@ -33,22 +37,41 @@ namespace Clifton.Payment.Gateway {
             return string.Format("{0}{1}", expirationDate.ToString("MM"), expirationDate.ToString("yy"));
         }
 
-        protected string ValidateDollarAmount(string dollarAmount) {
+        /// <summary>
+        /// Parse a US dollar amount (string) and return the total number of cents.
+        /// </summary>
+        protected string GetUsDollarAmountAsCents(string dollarAmount) {
             if (string.IsNullOrWhiteSpace(dollarAmount)) {
                 throw new DollarAmountNullException("Dollar amount is null / empty");
             }
 
-            dollarAmount = dollarAmount.Trim();
+            string[] dollarParts = dollarAmount.Trim().Split('.');
+            if (dollarParts.Length > 2) {
+                throw new DollarAmountInvalidException("US dollar amounts can only have one decimal point");
+            }
 
-            //TODO: validate amount (decimal place, etc)
+            int parsedCentsAmount = 0;
+            if (dollarParts.Length == 2) {
+                if (dollarParts[1].Length != 2) {
+                    throw new DollarAmountInvalidException("US dollar amounts must have two digit cent amounts");
+                }
 
-            return dollarAmount;
-        }
+                if (!int.TryParse(dollarParts[1], out parsedCentsAmount)) {
+                    throw new DollarAmountInvalidException("Cent amount must be numeric");
+                }
+            }
 
-        protected string GetDollarAmountAsCents(string dollarAmount) {
-            //TODO: ...
+            int parsedDollarAmount = 0;
 
-            return dollarAmount;
+            try {
+                parsedDollarAmount = int.Parse(dollarParts[0], NumberStyles.Currency);
+            } catch (Exception ex) {
+                throw new DollarAmountInvalidException("Dollar amount must be numeric", ex);
+            }
+
+            parsedDollarAmount *= 100;
+
+            return (parsedDollarAmount + parsedCentsAmount).ToString();
         }
 
         protected string ValidateCardSecurityCode(CreditCardType cardType, string cardVerificationValue) {
@@ -127,7 +150,7 @@ namespace Clifton.Payment.Gateway {
 
             int fourDigitYear;
             try {
-                fourDigitYear = CultureInfo.CurrentCulture.Calendar.ToFourDigitYear(parsedExpirationYear);
+                fourDigitYear = UsCulture.Calendar.ToFourDigitYear(parsedExpirationYear);
             } catch (Exception ex) {
                 throw new ExpirationFormatException("Error converting expiration year to a four digit year", ex);
             }
