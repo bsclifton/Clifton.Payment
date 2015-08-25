@@ -29,13 +29,12 @@ At this point, you're ready add a reference to the Clifton.Payment assembly and 
 using Clifton.Payment.Gateway;
 
 public class Demo {
-  protected const string key = "y6pWAJNyJyjGv66IsVuWnklkKUPFbb0a";
-  protected const string secret = "86fbae7030253af3cd15faef2a1f4b67353e41fb6799f576b5093ae52901e6f7";
-  protected const string token = "a480ce8951daa73262734cf102641994c1e55e7cdf4c02b6";
-  protected const string url = "https://api-cert.payeezy.com/v1/transactions";
+  protected string apiKey = "y6pWAJNyJyjGv66IsVuWnklkKUPFbb0a";
+  protected string apiSecret = "86fbae7030253af3cd15faef2a1f4b67353e41fb6799f576b5093ae52901e6f7";
+  protected string token = "a480ce8951daa73262734cf102641994c1e55e7cdf4c02b6";
 
-  public function Charge(){
-    PayeezyGateway gw = new PayeezyGateway(key, secret, token, url);
+  public function Charge() {
+    PayeezyGateway gw = new PayeezyGateway(apiKey, apiSecret, token, PayeezyEnvironment.Production);
     var response = gw.CreditCardPurchase("4111111111111111", "01", "20", ...);
   }
 }
