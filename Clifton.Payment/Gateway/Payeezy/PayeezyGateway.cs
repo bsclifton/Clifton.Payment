@@ -8,37 +8,57 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Clifton.Payment.Gateway {
+    public enum PayeezyEnvironment {
+        Certification,
+        Production
+    }
+
     /// <summary>
     /// Wraps the newer REST based API for First Data.
     /// </summary>
     /// <see cref="https://developer.payeezy.com/payeezy-api-reference/apis"/>
     /// <seealso cref="https://developer.payeezy.com/"/>
     public partial class PayeezyGateway : BaseGateway {
-        #region Properties
+        #region Constants
 
-        protected string ApiKey { get; set; }
-
-        protected string ApiSecret { get; set; }
-
-        /// <summary>ISO 4217 currency code. Defaulted to USD.</summary>
-        protected string CurrencyCode { get; set; }
-
-        protected string Token { get; set; }
-
-        protected string Url { get; set; }
+        protected const string SandboxBaseUrl = "https://api-cert.payeezy.com/v1/";
+        protected const string LiveBaseUrl = "https://api.payeezy.com/v1/";
+        protected const string TransactionsController = "transactions";
+        protected const string SecurityTokenController = "securitytokens";
+        protected const string EventsController = "events";
 
         #endregion
 
-        /// <summary>
-        /// When testing in CERT environment, the correct URL is https://api-cert.payeezy.com/v1/
-        /// In PROD environment, the correct URL is https://api.payeezy.com/v1/
-        /// </summary>
-        public PayeezyGateway(string apiKey, string apiSecret, string token, string url) {
+        #region Properties
+
+        public string ApiKey { get; protected set; }
+
+        public string ApiSecret { get; protected set; }
+
+        /// <summary>ISO 4217 currency code. Defaulted to USD.</summary>
+        public string CurrencyCode { get; protected set; }
+
+        public string Token { get; protected set; }
+
+        public string BaseUrl { get; protected set; }
+
+        #endregion
+
+        public PayeezyGateway(string apiKey, string apiSecret, string token, PayeezyEnvironment environment = PayeezyEnvironment.Certification) {
             ApiKey = apiKey;
             ApiSecret = apiSecret;
             Token = token;
-            Url = url;
             CurrencyCode = new RegionInfo("US").ISOCurrencySymbol;
+
+            switch (environment) {
+                case PayeezyEnvironment.Production:
+                    BaseUrl = LiveBaseUrl;
+                    break;
+
+                default:
+                    BaseUrl = SandboxBaseUrl;
+                    break;
+            }
         }
 
         #region Common methods
@@ -143,15 +163,8 @@ namespace Clifton.Payment.Gateway {
             return response;
         }
 
-        protected Response ProcessRequest(dynamic payload, string transactionId = null) {
-            string resourceUrl;
-
-            if (!string.IsNullOrWhiteSpace(transactionId)) {
-                resourceUrl = string.Format("{0}/{1}", this.Url, transactionId);
-            } else {
-                resourceUrl = this.Url;
-            }
-
+        protected Response ProcessRequest(dynamic payload, string relativeUrl) {
+            string resourceUrl = string.Format("{0}{1}", BaseUrl, relativeUrl);
             string payloadString = JsonConvert.SerializeObject(payload);
             HttpWebRequest webRequest = CreateRequest(this.ApiKey, this.ApiSecret, this.Token, resourceUrl, payloadString);
             string responseString;
@@ -188,6 +201,8 @@ namespace Clifton.Payment.Gateway {
 
         #endregion
 
+        #region Make Payments
+
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
         public Response CreditCardAuthorize(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
@@ -211,7 +226,7 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            return ProcessRequest(payload);
+            return ProcessRequest(payload, TransactionsController);
         }
 
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
@@ -238,7 +253,7 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            return ProcessRequest(payload);
+            return ProcessRequest(payload, TransactionsController);
         }
 
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
@@ -264,7 +279,7 @@ namespace Clifton.Payment.Gateway {
                 }
             };
 
-            return ProcessRequest(payload);
+            return ProcessRequest(payload, TransactionsController);
         }
 
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
@@ -280,7 +295,35 @@ namespace Clifton.Payment.Gateway {
                 currency_code = CurrencyCode
             };
 
-            return ProcessRequest(payload, transactionId);
+            return ProcessRequest(payload, string.Format("{0}/{1}", TransactionsController, transactionId));
         }
+
+        #endregion
+
+        #region Create Tokens
+
+        #endregion
+
+        #region Reporting
+
+        public Response SearchForEvents(DateTime dateFrom, DateTime dateTo, int pageSize, int pageNumber) {
+            dynamic payload = new {
+                eventType = "TRANSACTION_STATUS",
+                from = dateFrom.ToString("yyyy-MM-dd"),
+                to = dateTo.ToString("yyyy-MM-dd"),
+                offset = pageNumber,
+                limit = pageSize
+            };
+
+            return ProcessRequest(payload, EventsController);
+        }
+
+        public Response GetEventById(string id) {
+            dynamic payload = new { };
+
+            return ProcessRequest(payload, string.Format("{0}/{1}", EventsController, id));
+        }
+
+        #endregion
     }
 }
