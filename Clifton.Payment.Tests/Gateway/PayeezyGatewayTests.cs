@@ -16,6 +16,7 @@ namespace Clifton.Payment.Tests.Gateway {
         protected const string twoDigitYear = "20";
         protected const string dollarAmount1 = "1.23";
         protected const string dollarAmount2 = "3.21";
+        protected const string dollarAmountDeclined = "5000.05";
         protected const string cvv = "123";
 
         private PayeezyGateway GetReference() {
@@ -51,6 +52,16 @@ namespace Clifton.Payment.Tests.Gateway {
         }
 
         [TestMethod]
+        public void PayeezyGateway_CreditCardCapture_HappyPath() {
+            var authResponse = GetReference().CreditCardAuthorize(validVisa, month, twoDigitYear, dollarAmount1, cardHolderName, cvv, GetReferenceNumber());
+            var captureResponse = GetReference().CreditCardCapture(authResponse.TransactionId, GetReferenceNumber(), authResponse.TransactionTag, dollarAmount1);
+
+            Assert.IsNotNull(captureResponse.TransactionId);
+            Assert.AreEqual(PayeezyGateway.TransactionStatus.Approved, captureResponse.ParsedTransactionStatus);
+            Assert.AreEqual(PayeezyGateway.TransactionType.Capture, captureResponse.ParsedTransactionType);
+        }
+
+        [TestMethod]
         public void PayeezyGateway_CreditCardRefund_HappyPath() {
             var response = GetReference().CreditCardRefund(validVisa, month, twoDigitYear, dollarAmount1, cardHolderName, cvv, GetReferenceNumber());
 
@@ -58,6 +69,20 @@ namespace Clifton.Payment.Tests.Gateway {
             Assert.AreEqual(PayeezyGateway.TransactionStatus.Approved, response.ParsedTransactionStatus);
             Assert.AreEqual(PayeezyGateway.TransactionType.Refund, response.ParsedTransactionType);
         }
+
+        /// <summary>
+        /// throws a 400 error :/ needs to be debugged.
+        /// </summary>
+        //[TestMethod]
+        //public void PayeezyGateway_CreditCardTaggedRefund_HappyPath() {
+        //    string refNo = GetReferenceNumber();
+        //    var authResponse = GetReference().CreditCardAuthorize(validVisa, month, twoDigit, dollarAmount1, cardHolderName, cvv, refNo);
+        //    var refundResponse = GetReference().CreditCardRefund(authResponse.TransactionId, refNo, authResponse.TransactionTag, dollarAmount1);
+
+        //    Assert.IsNotNull(refundResponse.TransactionId);
+        //    Assert.AreEqual(PayeezyGateway.TransactionStatus.Approved, refundResponse.ParsedTransactionStatus);
+        //    Assert.AreEqual(PayeezyGateway.TransactionType.Refund, refundResponse.ParsedTransactionType);
+        //}
 
         [TestMethod]
         public void PayeezyGateway_CreditCardVoid_HappyPath() {
@@ -78,6 +103,18 @@ namespace Clifton.Payment.Tests.Gateway {
 
             Assert.AreEqual(PayeezyGateway.TransactionStatus.NotProcessed, voidResponse.ParsedTransactionStatus);
         }
+
+        /// <summary>
+        /// Experimental; Should work as described here:
+        /// https://support.payeezy.com/hc/en-us/articles/204504175-How-to-generate-unsuccessful-transactions-during-testing-
+        /// </summary>
+        //[TestMethod]
+        //public void PayeezyGateway_CreditCardAuth_Declined() {
+        //    var authResponse = GetReference().CreditCardAuthorize(validVisa, month, twoDigitYear, dollarAmountDeclined, cardHolderName, cvv, GetReferenceNumber());
+
+        //    Assert.AreEqual(PayeezyGateway.TransactionStatus.Declined, authResponse.ParsedTransactionStatus);
+        //    Assert.AreEqual(PayeezyGateway.GatewayResponseCode.Declined, authResponse.ParsedGatewayResponseCode);
+        //}
 
         #region testing ValidateCreditCard
 
@@ -224,5 +261,7 @@ namespace Clifton.Payment.Tests.Gateway {
         }
 
         #endregion
+
+
     }
 }

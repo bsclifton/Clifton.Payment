@@ -203,7 +203,10 @@ namespace Clifton.Payment.Gateway {
 
         #region Make Payments
 
+        #region Credit Card Payments
+
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
+        /// <seealso cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20-1"/>
         public Response CreditCardAuthorize(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
 
@@ -230,6 +233,7 @@ namespace Clifton.Payment.Gateway {
         }
 
         /// <see cref="https://developer.payeezy.com/creditcardpayment/apis/post/transactions"/>
+        /// <seealso cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20-1"/>
         public Response CreditCardPurchase(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
 
@@ -256,6 +260,28 @@ namespace Clifton.Payment.Gateway {
             return ProcessRequest(payload, TransactionsController);
         }
 
+        #endregion
+
+        #region Capture or Reverse a Payment
+
+        /// <see cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
+        public Response CreditCardCapture(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
+
+            dynamic payload = new {
+                merchant_ref = referenceNumber,
+                transaction_tag = transactionTag,
+                transaction_type = TransactionTypeToString[TransactionType.Capture],
+                method = MethodTypeToString[MethodType.CreditCard],
+                amount = dollarAmount,
+                currency_code = CurrencyCode
+            };
+
+            return ProcessRequest(payload, string.Format("{0}/{1}", TransactionsController, transactionId));
+        }
+
+        // Documentation no longer shows this...
+        // I opened a question here: https://developer.payeezy.com/content/where-did-refund-go
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
         public Response CreditCardRefund(string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
             DateTime parsedExpirationDate;
@@ -282,7 +308,24 @@ namespace Clifton.Payment.Gateway {
             return ProcessRequest(payload, TransactionsController);
         }
 
+        /// <see cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
+        public Response CreditCardRefund(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
+
+            dynamic payload = new {
+                merchant_ref = referenceNumber,
+                transaction_tag = transactionTag,
+                transaction_type = TransactionTypeToString[TransactionType.Refund],
+                method = MethodTypeToString[MethodType.CreditCard],
+                amount = dollarAmount,
+                currency_code = CurrencyCode
+            };
+
+            return ProcessRequest(payload, string.Format("{0}/{1}", TransactionsController, transactionId));
+        }
+
         /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
+        /// <seealso cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
         public Response CreditCardVoid(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
             dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 
@@ -300,12 +343,19 @@ namespace Clifton.Payment.Gateway {
 
         #endregion
 
+        #endregion
+
         #region Create Tokens
 
         #endregion
 
         #region Reporting
 
+        #endregion
+
+        #region Event Notifications
+
+        /// <see cref="https://developer.payeezy.com/searchforevents/apis/get/events"/>
         public Response SearchForEvents(DateTime dateFrom, DateTime dateTo, int pageSize, int pageNumber) {
             dynamic payload = new {
                 eventType = "TRANSACTION_STATUS",
@@ -318,6 +368,7 @@ namespace Clifton.Payment.Gateway {
             return ProcessRequest(payload, EventsController);
         }
 
+        /// <see cref="https://developer.payeezy.com/searchforevents/apis/get/events/%7Bid%7D"/>
         public Response GetEventById(string id) {
             dynamic payload = new { };
 
