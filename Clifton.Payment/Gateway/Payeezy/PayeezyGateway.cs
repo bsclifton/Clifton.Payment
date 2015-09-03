@@ -264,7 +264,8 @@ namespace Clifton.Payment.Gateway {
 
         #region Capture or Reverse a Payment
 
-        /// <see cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
+        /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
+        /// <seealso cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
         public Response CreditCardCapture(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
             dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 
@@ -280,7 +281,34 @@ namespace Clifton.Payment.Gateway {
             return ProcessRequest(payload, string.Format("{0}/{1}", TransactionsController, transactionId));
         }
 
-        /// <see cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
+        /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
+        public Response CreditCardRefund(string transactionId, string cardNumber, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string cardVerificationValue, string referenceNumber) {
+            DateTime parsedExpirationDate;
+
+            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
+            cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
+
+            dynamic payload = new {
+                merchant_ref = referenceNumber,
+                transaction_type = TransactionTypeToString[TransactionType.Refund],
+                method = MethodTypeToString[MethodType.CreditCard],
+                amount = dollarAmount,
+                currency_code = CurrencyCode,
+                credit_card = new {
+                    type = CardTypeToString[cardType],
+                    cardholder_name = cardHoldersName,
+                    card_number = cardNumber,
+                    exp_date = FormatCardExpirationDate(parsedExpirationDate),
+                    cvv = cardVerificationValue
+                }
+            };
+
+            return ProcessRequest(payload, string.Format("{0}/{1}", TransactionsController, transactionId));
+        }
+
+        /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
+        /// <seealso cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
         public Response CreditCardRefund(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
             dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 

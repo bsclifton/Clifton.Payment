@@ -8,6 +8,16 @@ namespace Clifton.Payment.Tests.Gateway.Payeezy {
         [TestMethod]
         public void PayeezyCC_PurchaseRefund_HappyPath() {
             var purchaseResponse = GetReference().CreditCardPurchase(validVisa, month, twoDigitYear, dollarAmount1, cardHolderName, cvv, GetReferenceNumber());
+            var refundResponse = GetReference().CreditCardRefund(purchaseResponse.TransactionId, validVisa, month, twoDigitYear, dollarAmount1, cardHolderName, cvv, GetReferenceNumber());
+
+            Assert.IsNotNull(refundResponse.TransactionId);
+            Assert.AreEqual(PayeezyGateway.TransactionStatus.Approved, refundResponse.ParsedTransactionStatus);
+            Assert.AreEqual(PayeezyGateway.TransactionType.Refund, refundResponse.ParsedTransactionType);
+        }
+
+        [TestMethod]
+        public void PayeezyCC_PurchaseRefundTagged_HappyPath() {
+            var purchaseResponse = GetReference().CreditCardPurchase(validVisa, month, twoDigitYear, dollarAmount1, cardHolderName, cvv, GetReferenceNumber());
             var refundResponse = GetReference().CreditCardRefund(purchaseResponse.TransactionId, GetReferenceNumber(), purchaseResponse.TransactionTag, dollarAmount1);
 
             Assert.IsNotNull(refundResponse.TransactionId);
