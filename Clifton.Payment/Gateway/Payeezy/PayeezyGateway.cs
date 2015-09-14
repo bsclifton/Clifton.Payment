@@ -67,7 +67,13 @@ namespace Clifton.Payment.Gateway {
             string message = apiKey + nonce.ToString() + currentTimestamp + token + payload;
             HMAC hmacSha256 = new HMACSHA256(Encoding.UTF8.GetBytes(apiSecret));
             byte[] hmacData = hmacSha256.ComputeHash(Encoding.UTF8.GetBytes(message));
-            return Convert.ToBase64String(hmacData);
+
+            // updated per comment by blakeshadle5159
+            // https://developer.payeezy.com/content/how-create-hmac-code-c#comment-402
+            string hex = BitConverter.ToString(hmacData);
+            hex = hex.Replace("-", "").ToLower();
+            byte[] hexArray = Encoding.UTF8.GetBytes(hex);
+            return Convert.ToBase64String(hexArray);
         }
 
         protected HttpWebRequest CreateRequest(string apiKey, string apiSecret, string token, string url, string payloadString) {
