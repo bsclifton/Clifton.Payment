@@ -10,7 +10,7 @@ namespace Clifton.Payment.Gateway {
 
     public abstract class BaseGateway {
         protected CultureInfo UsCulture {
-            get { return new CultureInfo("US"); }
+            get { return new CultureInfo("en-US"); }
         }
 
         protected string GetEpochTimestampInMilliseconds() {
