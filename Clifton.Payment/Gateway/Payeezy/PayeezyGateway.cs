@@ -349,13 +349,37 @@ namespace Clifton.Payment.Gateway {
 
         #endregion
 
+        #region Token Payments
+        /// <see cref="https://developer.payeezy.com/payeezy-api/apis/post/transactions-4"/>
+        public Response TokenPurchase(string token, string cardType, string expirationMonth, string expirationYear, string dollarAmount, string cardHoldersName, string referenceNumber)
+        {
+            DateTime parsedExpirationDate = ParseDateTime(expirationMonth, expirationYear);
+            CreditCardType ccType = CardTypeByString[cardType];
+            dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
+
+            dynamic payload = new
+            {
+                merchant_ref = referenceNumber,
+                transaction_type = TransactionTypeToString[TransactionType.Purchase],
+                method = MethodTypeToString[MethodType.Token],
+                amount = dollarAmount,
+                currency_code = CurrencyCode,
+                token = new
+                {
+                    token_type = "FDToken",
+                    token_data = new
+                    { 
+                        type = CardTypeToString[ccType],
+                        value = token,
+                        cardholder_name = cardHoldersName,
+                        exp_date = FormatCardExpirationDate(parsedExpirationDate)
+                    }
+                }
+            };
+
+            return ProcessRequest(payload, TransactionsController);
+        }
         #endregion
-
-        #region Create Tokens
-
-        #endregion
-
-        #region Reporting
 
         #endregion
 

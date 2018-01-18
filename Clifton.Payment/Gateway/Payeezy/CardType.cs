@@ -8,5 +8,12 @@ namespace Clifton.Payment.Gateway {
             { CreditCardType.MasterCard, "Mastercard" },
             { CreditCardType.Discover, "Discover" }
         };
+
+        protected Dictionary<string, CreditCardType> CardTypeByString = new Dictionary<string, CreditCardType>() {
+            { "American Express", CreditCardType.AmericanExpress },
+            { "Visa", CreditCardType.Visa },
+            { "Mastercard", CreditCardType.MasterCard },
+            { "Discover", CreditCardType.Discover }
+        };
     }
 }

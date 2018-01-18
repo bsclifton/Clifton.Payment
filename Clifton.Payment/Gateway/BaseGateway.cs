@@ -134,6 +134,7 @@ namespace Clifton.Payment.Gateway {
                 throw new CardNumberInvalidException("Card number is invalid");
             }
 
+            /*
             int parsedExpirationMonth;
             if (!int.TryParse(expirationMonth, out parsedExpirationMonth)) {
                 throw new ExpirationFormatException("Expiration month must be a number");
@@ -157,12 +158,50 @@ namespace Clifton.Payment.Gateway {
 
             int daysInMonth = DateTime.DaysInMonth(fourDigitYear, parsedExpirationMonth);
             parsedExpirationDate = new DateTime(fourDigitYear, parsedExpirationMonth, daysInMonth, 23, 59, 59);
+            */
 
-            if (DateTime.Now > parsedExpirationDate) {
+            parsedExpirationDate = ParseDateTime(expirationMonth, expirationYear);
+            
+            return cardType;
+        }
+
+        protected DateTime ParseDateTime(string expirationMonth, string expirationYear)
+        {
+            int parsedExpirationMonth;
+            if (!int.TryParse(expirationMonth, out parsedExpirationMonth))
+            {
+                throw new ExpirationFormatException("Expiration month must be a number");
+            }
+
+            if (parsedExpirationMonth < 1 || parsedExpirationMonth > 12)
+            {
+                throw new ExpirationOutOfRangeException("Expiration month must be between 1 and 12");
+            }
+
+            int parsedExpirationYear;
+            if (!int.TryParse(expirationYear, out parsedExpirationYear))
+            {
+                throw new ExpirationFormatException("Expiration year must be a number");
+            }
+            int fourDigitYear;
+            try
+            {
+                fourDigitYear = UsCulture.Calendar.ToFourDigitYear(parsedExpirationYear);
+            }
+            catch (Exception ex)
+            {
+                throw new ExpirationFormatException("Error converting expiration year to a four digit year", ex);
+            }
+
+            int daysInMonth = DateTime.DaysInMonth(fourDigitYear, parsedExpirationMonth);
+            var parsedExpirationDate = new DateTime(fourDigitYear, parsedExpirationMonth, daysInMonth, 23, 59, 59);
+
+            if (DateTime.Now > parsedExpirationDate)
+            {
                 throw new CardExpiredException("Card has expired");
             }
 
-            return cardType;
+            return parsedExpirationDate;
         }
     }
 }

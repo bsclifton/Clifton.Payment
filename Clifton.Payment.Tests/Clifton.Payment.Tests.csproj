@@ -8,7 +8,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Clifton.Payment.Tests</RootNamespace>
     <AssemblyName>Clifton.Payment.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -16,6 +16,7 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,6 +59,7 @@
     <Compile Include="Gateway\Payeezy\common.cs" />
     <Compile Include="Gateway\Payeezy\Purchase.cs" />
     <Compile Include="Gateway\Payeezy\Refund.cs" />
+    <Compile Include="Gateway\Payeezy\TokenPurchase.cs" />
     <Compile Include="Gateway\Payeezy\ValidateCreditCard.cs" />
     <Compile Include="Gateway\Payeezy\ValidateCardSecurityCode.cs" />
     <Compile Include="Gateway\Payeezy\Void.cs" />
