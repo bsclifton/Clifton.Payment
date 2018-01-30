@@ -79,8 +79,8 @@ namespace Clifton.Payment.Gateway {
         protected HttpWebRequest CreateRequest(string apiKey, string apiSecret, string token, string url, string payloadString) {
             string currentTimestamp = GetEpochTimestampInMilliseconds();
             int nonce = GetNonce();
-
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.Method = "POST";
             webRequest.ContentType = MimeTypes.ApplicationJson;
             webRequest.Accept = MimeTypes.ApplicationJson;
