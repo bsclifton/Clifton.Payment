@@ -9,8 +9,9 @@ namespace Clifton.Payment.Gateway {
             Void,
             Capture,
             Split,
-            Refund
-        }
+            Refund,
+			Tokenize
+		}
 
         protected Dictionary<TransactionType, string> TransactionTypeToString = new Dictionary<TransactionType, string>() {
             { TransactionType.Authorize, "authorize" },
@@ -18,7 +19,8 @@ namespace Clifton.Payment.Gateway {
             { TransactionType.Void, "void" },
             { TransactionType.Capture, "capture" },
             { TransactionType.Split, "split" },
-            { TransactionType.Refund, "refund" }
+            { TransactionType.Refund, "refund" },
+            { TransactionType.Tokenize, "tokens" }
         };
 
         protected Dictionary<string, TransactionType> TransactionTypeByString = new Dictionary<string, TransactionType>() {
@@ -27,7 +29,8 @@ namespace Clifton.Payment.Gateway {
             { "void", TransactionType.Void },
             { "capture", TransactionType.Capture },
             { "split", TransactionType.Split },
-            { "refund", TransactionType.Refund }
+            { "refund", TransactionType.Refund },
+            { "tokens", TransactionType.Tokenize }
         };
     }
 }

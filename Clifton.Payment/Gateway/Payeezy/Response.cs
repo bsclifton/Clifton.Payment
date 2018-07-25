@@ -35,6 +35,8 @@ namespace Clifton.Payment.Gateway {
             /// <summary>Approved = Card Approved , Declined = Gateway declined, Not Processed = For any internal errors.</summary>
             public string TransactionStatus { get; set; }
 
+			public string Status { get; set; }
+
             /// <summary>TransactionStatus as an enum.</summary>
             public TransactionStatus ParsedTransactionStatus { get; set; }
 
@@ -79,8 +81,16 @@ namespace Clifton.Payment.Gateway {
                 public string Description { get; set; }
             }
 
-            /// <summary>Objects with error codes and description.</summary>
-            public List<ErrorMessage> ErrorMessages { get; set; }
+			//Token fields
+			public string type { get; set; }
+			public string cardholderName { get; set; }
+			public string expDate { get; set; }
+			public string tokenStr { get; set; }
+			
+
+			/// <summary>Objects with error codes and description.</summary>
+			public List<ErrorMessage> ErrorMessages { get; set; }
+
         }
     }
 }

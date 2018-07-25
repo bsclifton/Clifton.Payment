@@ -24,6 +24,7 @@ namespace Clifton.Payment.Gateway {
         protected const string SandboxBaseUrl = "https://api-cert.payeezy.com/v1/";
         protected const string LiveBaseUrl = "https://api.payeezy.com/v1/";
         protected const string TransactionsController = "transactions";
+        protected const string TransactionsTokensController = "transactions/tokens";
         protected const string SecurityTokenController = "securitytokens";
         protected const string EventsController = "events";
 
@@ -79,8 +80,8 @@ namespace Clifton.Payment.Gateway {
         protected HttpWebRequest CreateRequest(string apiKey, string apiSecret, string token, string url, string payloadString) {
             string currentTimestamp = GetEpochTimestampInMilliseconds();
             int nonce = GetNonce();
-			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.Method = "POST";
             webRequest.ContentType = MimeTypes.ApplicationJson;
             webRequest.Accept = MimeTypes.ApplicationJson;
@@ -107,12 +108,16 @@ namespace Clifton.Payment.Gateway {
                 ParsedMethodType = MethodType.Unknown,
                 Amount = responseObject.amount,
                 Currency = responseObject.currency,
-                //...
-                //TODO: avs/cvv2/card/token
-                //...
+				// Token fields
+                type = responseObject.token.type,
+                cardholderName = responseObject.token.cardholder_name,
+                expDate = responseObject.token.exp_date,
+                tokenStr = responseObject.token.value,
+				// /Token fields
                 TransactionStatus = responseObject.transaction_status,
                 ParsedTransactionStatus = TransactionStatus.Unknown,
                 ValidationStatus = responseObject.validation_status,
+                Status = responseObject.status,
                 TransactionType = responseObject.transaction_type,
                 ParsedTransactionType = TransactionType.Unknown,
                 TransactionId = responseObject.transaction_id,
@@ -174,30 +179,33 @@ namespace Clifton.Payment.Gateway {
             string payloadString = JsonConvert.SerializeObject(payload);
             HttpWebRequest webRequest = CreateRequest(this.ApiKey, this.ApiSecret, this.Token, resourceUrl, payloadString);
             string responseString;
-
             try {
                 using (HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse()) {
                     using (StreamReader responseStream = new StreamReader(webResponse.GetResponseStream())) {
                         responseString = responseStream.ReadToEnd();
                     }
                 }
-            } catch (WebException ex) {
-                if (ex.Response != null) {
-                    using (HttpWebResponse errorResponse = (HttpWebResponse)ex.Response) {
-                        using (StreamReader reader = new StreamReader(errorResponse.GetResponseStream())) {
-                            string exceptionResponse = reader.ReadToEnd();
+                } catch (WebException ex)
+                {
+                    if (ex.Response != null)
+                    {
+                       using (HttpWebResponse errorResponse = (HttpWebResponse)ex.Response)
+                       {
+                          using (StreamReader reader = new StreamReader(errorResponse.GetResponseStream()))
+                          {
+                             string exceptionResponse = reader.ReadToEnd();
 
-                            return ParseResponse(exceptionResponse);
-                        }
-                    }
-                }
-                throw;
-            }
+                             return ParseResponse(exceptionResponse);
+                         }
+                     }
+                 }
+                 throw;
+             }
 
-            return ParseResponse(responseString);
-        }
+             return ParseResponse(responseString);
+         }
 
-        protected CreditCardType ValidateAndParseCardDetails(string cardNumber, string expirationMonth, string expirationYear, out DateTime parsedExpirationDate) {
+         protected CreditCardType ValidateAndParseCardDetails(string cardNumber, string expirationMonth, string expirationYear, out DateTime parsedExpirationDate) {
             CreditCardType cardType = base.ValidateCreditCard(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
             if (!CardTypeToString.ContainsKey(cardType)) {
                 throw new CardTypeNotSupportedException(string.Format("Card type {0} is not supported", cardType.ToString()));
@@ -266,12 +274,12 @@ namespace Clifton.Payment.Gateway {
             return ProcessRequest(payload, TransactionsController);
         }
 
-        #endregion
+		#endregion
 
-        #region Capture or Reverse a Payment
+		#region Capture or Reverse a Payment
 
-        /// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
-        /// <seealso cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
+		/// <see cref="https://developer.payeezy.com/capturereversepayment/apis/post/transactions/%7Bid%7D"/>
+		/// <seealso cref="https://developer.payeezy.com/payeezy_new_docs/apis/post/transactions/%7Bid%7D-2"/>
         public Response CreditCardCapture(string transactionId, string referenceNumber, string transactionTag, string dollarAmount) {
             dollarAmount = GetUsDollarAmountAsCents(dollarAmount);
 
@@ -347,7 +355,7 @@ namespace Clifton.Payment.Gateway {
             return ProcessRequest(payload, string.Format("{0}/{1}", TransactionsController, transactionId));
         }
 
-        #endregion
+		#endregion
 
         #region Token Payments
         /// <see cref="https://developer.payeezy.com/payeezy-api/apis/post/transactions-4"/>
@@ -368,7 +376,7 @@ namespace Clifton.Payment.Gateway {
                 {
                     token_type = "FDToken",
                     token_data = new
-                    { 
+                    {
                         type = CardTypeToString[ccType],
                         value = token,
                         cardholder_name = cardHoldersName,
@@ -383,9 +391,38 @@ namespace Clifton.Payment.Gateway {
 
         #endregion
 
-        #region Event Notifications
+		#region Create Tokens
+        /// <see cref="https://developer.payeezy.com/payeezy-api/apis/post/transactions/tokens"/>
+        public Response CreditCardTokenize(string cardNumber, string expirationMonth, string expirationYear, string cardHoldersName, string cardVerificationValue, string referenceNumber, string TransarmorToken) {
+            DateTime parsedExpirationDate;
 
-        /// <see cref="https://developer.payeezy.com/searchforevents/apis/get/events"/>
+            CreditCardType cardType = ValidateAndParseCardDetails(cardNumber, expirationMonth, expirationYear, out parsedExpirationDate);
+            cardVerificationValue = ValidateCardSecurityCode(cardType, cardVerificationValue);
+
+            dynamic payload = new {
+                type = "FDToken",
+                auth = "false",
+                ta_token = TransarmorToken,
+                credit_card = new {
+                    type = CardTypeToString[cardType],
+                    cardholder_name = cardHoldersName,
+                    card_number = cardNumber,
+                    exp_date = FormatCardExpirationDate(parsedExpirationDate),
+                    cvv = cardVerificationValue
+               }
+            };
+
+            return ProcessRequest(payload, TransactionsTokensController);
+        }
+		#endregion
+
+		#region Reporting
+
+		#endregion
+
+		#region Event Notifications
+
+		/// <see cref="https://developer.payeezy.com/searchforevents/apis/get/events"/>
         public Response SearchForEvents(DateTime dateFrom, DateTime dateTo, int pageSize, int pageNumber) {
             dynamic payload = new {
                 eventType = "TRANSACTION_STATUS",
