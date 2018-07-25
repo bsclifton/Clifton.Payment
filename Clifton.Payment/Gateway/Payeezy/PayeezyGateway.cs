@@ -441,7 +441,6 @@ namespace Clifton.Payment.Gateway {
 
             return ProcessRequest(payload, string.Format("{0}/{1}", EventsController, id));
         }
-
         #endregion
     }
 }

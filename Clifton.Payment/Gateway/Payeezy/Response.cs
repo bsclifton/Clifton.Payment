@@ -86,7 +86,6 @@ namespace Clifton.Payment.Gateway {
 			public string cardholderName { get; set; }
 			public string expDate { get; set; }
 			public string tokenStr { get; set; }
-			
 
 			/// <summary>Objects with error codes and description.</summary>
 			public List<ErrorMessage> ErrorMessages { get; set; }
