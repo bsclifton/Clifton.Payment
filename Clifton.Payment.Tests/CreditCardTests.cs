@@ -76,5 +76,11 @@ namespace Clifton.Payment.Tests {
             bool result = CreditCard.HasValidLuhnChecksum(ExampleCard.invalidAmericanExpress);
             Assert.IsFalse(result);
         }
+        
+        [TestMethod]
+        public void HasValidLuhnChecksum_ValidAmericanExpressWith0Checkdigit() {
+            bool result = CreditCard.HasValidLuhnChecksum("378734493671000");
+            Assert.IsTrue(result);
+        }
     }
 }
