@@ -58,7 +58,7 @@ namespace Clifton.Payment {
                 sum += (doubleIfEven < 10 ? doubleIfEven : doubleIfEven - 9);
             }
 
-            int lastDigit = 10 - (sum % 10);
+            int lastDigit = (10 - (sum % 10)) % 10; 
 
             return lastDigit == (cardNumber[length] - '0');
         }
