@@ -140,6 +140,17 @@ namespace Clifton.Payment.Gateway {
                 }
             }
 
+            if (responseObject.code != null && responseObject.message != null)
+            {
+                Response.ErrorMessage msg = new Response.ErrorMessage
+                {
+                    Code = responseObject.code,
+                    Description = responseObject.message
+                };
+
+                response.ErrorMessages.Add(msg);
+            }
+		
             #endregion
 
             #region Convert response fields into an enum (if possible)
